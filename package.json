@@ -1,0 +1,20 @@
+{
+  "name": "alertabr",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AlertaBR com API baseada em dados oficiais do INMET",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check script.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "fast-xml-parser": "^5.8.0"
+  }
+}
