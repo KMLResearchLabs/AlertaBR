@@ -683,6 +683,25 @@ body::before {
     padding: 12px;
   }
 
+  .panel-reportbar,
+  .panel-summary,
+  .panel-detail,
+  .panel-stations,
+  .panel-sources,
+  .panel-highlights,
+  .insight-grid {
+    display: none;
+  }
+
+  .dashboard-shell {
+    gap: 12px;
+  }
+
+  .workspace-grid,
+  .support-grid {
+    gap: 12px;
+  }
+
   .summary-grid,
   .stations-grid {
     grid-template-columns: 1fr;
