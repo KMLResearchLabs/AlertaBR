@@ -276,6 +276,12 @@
   crossorigin=""
 ></script>
 <script src="./config.js"></script>
+<script type="module">
+  import { inject } from './analytics.js';
+  import { injectSpeedInsights } from './speed-insights.js';
+  inject();
+  injectSpeedInsights();
+</script>
 <script src="./app.js"></script>
 </body>
 </html>
