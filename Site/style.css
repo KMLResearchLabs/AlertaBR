@@ -588,6 +588,58 @@ body::before {
   grid-template-rows: auto 1fr;
 }
 
+.map-flash-card-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  box-shadow: 8px 8px 0 rgba(127, 17, 22, 0.14);
+}
+
+.map-flash-card-popup .leaflet-popup-content {
+  margin: 0;
+}
+
+.map-flash-card-popup .leaflet-popup-tip {
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.map-flash-card {
+  display: grid;
+  gap: 10px;
+  min-width: 230px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.map-flash-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.map-flash-card-title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.map-flash-card-copy {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.map-flash-card-link {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
 .empty-state {
   color: var(--ink-soft);
 }

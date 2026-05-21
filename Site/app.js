@@ -22,7 +22,8 @@ const state = {
   map: null,
   polygonLayer: null,
   markerLayer: null,
-  loading: false
+  loading: false,
+  mapFlashCard: null
 };
 
 const elements = {};
@@ -328,7 +329,13 @@ function renderMap() {
         }
       });
 
-      polygon.on("click", () => selectAlert(alert.id, false));
+      polygon.on("click", (event) => {
+        selectAlert(alert.id, false, {
+          source: "map",
+          openMapFlashCard: true,
+          latlng: event && event.latlng ? event.latlng : null
+        });
+      });
       polygon.addTo(state.polygonLayer);
 
       if (polygon.getBounds && polygon.getBounds().isValid()) {
@@ -345,7 +352,13 @@ function renderMap() {
         fillOpacity: 1
       });
 
-      marker.on("click", () => selectAlert(alert.id, false));
+      marker.on("click", (event) => {
+        selectAlert(alert.id, false, {
+          source: "map",
+          openMapFlashCard: true,
+          latlng: event && event.latlng ? event.latlng : null
+        });
+      });
       marker.addTo(state.markerLayer);
     }
   });
@@ -367,19 +380,38 @@ function renderMap() {
   state.map.setView(view.center || DEFAULT_VIEW.center, view.zoom || DEFAULT_VIEW.zoom);
 }
 
-function selectAlert(alertId, keepMapView) {
+function selectAlert(alertId, keepMapView, options = {}) {
   state.selectedAlertId = alertId;
   renderAlerts(state.report && state.report.alerts);
   renderSelectedAlert();
   renderMap();
 
+  if (!options.openMapFlashCard) {
+    closeMapFlashCard();
+  }
+
+  if (options && options.source === "map") {
+    scrollSelectedAlertIntoView();
+  }
+
   if (keepMapView) {
+    if (options && options.openMapFlashCard) {
+      openMapFlashCard(getSelectedAlert(), options.latlng);
+    }
     return;
   }
 
   const alert = getSelectedAlert();
   if (!alert || !alert.area) {
+    closeMapFlashCard();
     return;
+  }
+
+  const popupLatLng = (options && options.latlng) || alertLatLng(alert);
+  if (options && options.openMapFlashCard && popupLatLng) {
+    state.map.once("moveend", () => {
+      openMapFlashCard(alert, popupLatLng);
+    });
   }
 
   if (Array.isArray(alert.area.bbox) && alert.area.bbox.length === 4) {
@@ -397,6 +429,11 @@ function selectAlert(alertId, keepMapView) {
     state.map.flyTo([alert.area.centroid.lat, alert.area.centroid.lng], 7, {
       duration: 0.8
     });
+    return;
+  }
+
+  if (options && options.openMapFlashCard) {
+    openMapFlashCard(alert, popupLatLng);
   }
 }
 
@@ -429,6 +466,7 @@ function renderError(error) {
   elements.alertDetail.innerHTML = "<p class=\"detail-empty\">O detalhe do alerta aparecera aqui quando o relatorio for carregado.</p>";
   state.polygonLayer.clearLayers();
   state.markerLayer.clearLayers();
+  closeMapFlashCard();
 }
 
 function setStatus(mode, label, meta) {
@@ -468,6 +506,19 @@ function detailLinkLine(label, url) {
     "Abrir aviso oficial" +
     "</a></li>"
   );
+}
+
+function scrollSelectedAlertIntoView() {
+  const activeAlert = elements.alertList.querySelector(".alert-item.is-active");
+
+  if (!activeAlert) {
+    return;
+  }
+
+  activeAlert.scrollIntoView({
+    block: "nearest",
+    behavior: "smooth"
+  });
 }
 
 function formatStates(states) {
@@ -534,6 +585,70 @@ function levelMapTone(level) {
     fill: meta.color,
     stroke: meta.stroke || meta.color
   };
+}
+
+function openMapFlashCard(alert, latlng) {
+  if (!state.map || !alert || !latlng) {
+    return;
+  }
+
+  closeMapFlashCard();
+
+  const safeUrl = safeExternalUrl(alert.webUrl);
+  const municipalities = alert.area && alert.area.municipalityCount
+    ? String(alert.area.municipalityCount) + " municipio(s)"
+    : "Cobertura sem contagem";
+  const states = formatStates(alert.area && alert.area.states);
+
+  state.mapFlashCard = L.popup({
+    autoClose: true,
+    closeButton: false,
+    className: "map-flash-card-popup",
+    maxWidth: 320,
+    offset: [0, -10]
+  })
+    .setLatLng(latlng)
+    .setContent(
+      "<article class=\"map-flash-card\">" +
+        "<div class=\"map-flash-card-head\">" +
+          "<span class=\"detail-badge " + escapeHtml(alert.level || "ama") + "\">" + escapeHtml(levelLabel(alert.level)) + "</span>" +
+          "<span class=\"detail-badge ama\">" + escapeHtml(phaseLabel(alert.phase)) + "</span>" +
+        "</div>" +
+        "<h4 class=\"map-flash-card-title\">" + escapeHtml(alert.headline || "Alerta") + "</h4>" +
+        "<p class=\"map-flash-card-copy\">" + escapeHtml(alert.event || "Evento") + " · " + escapeHtml(states) + "</p>" +
+        "<p class=\"map-flash-card-copy\">" + escapeHtml(municipalities) + " · " + escapeHtml(formatDateTime(alert.expires)) + "</p>" +
+        (safeUrl
+          ? "<a class=\"map-flash-card-link\" href=\"" + escapeHtml(safeUrl) + "\" target=\"_blank\" rel=\"noopener noreferrer\" referrerpolicy=\"no-referrer\">Abrir aviso oficial</a>"
+          : "") +
+      "</article>"
+    )
+    .openOn(state.map);
+}
+
+function closeMapFlashCard() {
+  if (!state.mapFlashCard || !state.map) {
+    return;
+  }
+
+  state.map.closePopup(state.mapFlashCard);
+  state.mapFlashCard = null;
+}
+
+function alertLatLng(alert) {
+  if (alert && alert.area && alert.area.centroid) {
+    return [alert.area.centroid.lat, alert.area.centroid.lng];
+  }
+
+  if (alert && alert.area && Array.isArray(alert.area.bbox) && alert.area.bbox.length === 4) {
+    const bbox = alert.area.bbox;
+
+    return [
+      (bbox[1] + bbox[3]) / 2,
+      (bbox[0] + bbox[2]) / 2
+    ];
+  }
+
+  return null;
 }
 
 function labelForStatus(status) {
