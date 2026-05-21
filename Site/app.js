@@ -4,9 +4,9 @@ const DEFAULT_VIEW = {
 };
 
 const LEVEL_META = {
-  verm: { label: "Perigo", color: "#7f1116" },
-  lar: { label: "Laranja", color: "#b95a5d" },
-  ama: { label: "Amarelo", color: "#d8a8a9" }
+  verm: { label: "Perigo", color: "#7f1116", stroke: "#5e0d11" },
+  lar: { label: "Laranja", color: "#f08c00", stroke: "#c66a00" },
+  ama: { label: "Amarelo", color: "#f2c94c", stroke: "#d4a017" }
 };
 
 const PHASE_LABELS = {
@@ -315,14 +315,16 @@ function renderMap() {
   const bounds = [];
 
   alerts.forEach((alert) => {
+    const mapTone = levelMapTone(alert.level);
+
     if (alert.area && alert.area.geometry) {
       const polygon = L.geoJSON(alert.area.geometry, {
         style: {
-          color: levelColor(alert.level),
-          fillColor: levelColor(alert.level),
-          weight: state.selectedAlertId === alert.id ? 2.6 : 1.4,
-          opacity: state.selectedAlertId === alert.id ? 0.95 : 0.45,
-          fillOpacity: state.selectedAlertId === alert.id ? 0.18 : 0.08
+          color: mapTone.stroke,
+          fillColor: mapTone.fill,
+          weight: state.selectedAlertId === alert.id ? 3.2 : 2,
+          opacity: state.selectedAlertId === alert.id ? 0.96 : 0.78,
+          fillOpacity: state.selectedAlertId === alert.id ? 0.32 : 0.18
         }
       });
 
@@ -336,10 +338,10 @@ function renderMap() {
 
     if (alert.area && alert.area.centroid) {
       const marker = L.circleMarker([alert.area.centroid.lat, alert.area.centroid.lng], {
-        radius: state.selectedAlertId === alert.id ? 7 : 5,
+        radius: state.selectedAlertId === alert.id ? 7.5 : 5.5,
         color: "#fff",
-        weight: 1.5,
-        fillColor: levelColor(alert.level),
+        weight: state.selectedAlertId === alert.id ? 2.2 : 1.6,
+        fillColor: mapTone.fill,
         fillOpacity: 1
       });
 
@@ -523,6 +525,15 @@ function levelLabel(level) {
 
 function levelColor(level) {
   return LEVEL_META[level] ? LEVEL_META[level].color : LEVEL_META.ama.color;
+}
+
+function levelMapTone(level) {
+  const meta = LEVEL_META[level] || LEVEL_META.ama;
+
+  return {
+    fill: meta.color,
+    stroke: meta.stroke || meta.color
+  };
 }
 
 function labelForStatus(status) {

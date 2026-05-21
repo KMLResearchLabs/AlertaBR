@@ -114,8 +114,8 @@ body::before {
 
 .reportbar-stamp {
   margin: 0;
-  max-width: 12ch;
-  font-size: clamp(1.8rem, 2.7vw, 2.8rem);
+  max-width: none;
+  font-size: clamp(1.3rem, 1.9vw, 2rem);
   line-height: 0.98;
   letter-spacing: -0.06em;
 }
@@ -123,18 +123,20 @@ body::before {
 .panel-reportbar {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(320px, 1fr) auto;
-  gap: 24px;
-  align-items: end;
+  gap: 18px;
+  align-items: center;
+  padding-top: 14px;
+  padding-bottom: 14px;
 }
 
 .reportbar-block,
 .reportbar-actions {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .reportbar-status {
-  align-content: start;
+  align-content: center;
 }
 
 .reportbar-actions {
@@ -186,13 +188,14 @@ body::before {
 
 .status-line strong {
   display: block;
-  margin: 0 0 6px;
-  font-size: 18px;
+  margin: 0 0 4px;
+  font-size: 17px;
   letter-spacing: -0.03em;
 }
 
 .status-line p {
   margin: 0;
+  font-size: 13px;
   color: var(--ink-soft);
 }
 
