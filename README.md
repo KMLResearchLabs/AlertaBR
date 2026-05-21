@@ -1,4 +1,4 @@
-# Happy Nation
+# AlertaBR
 
 Arquitetura separada em duas pastas:
 
