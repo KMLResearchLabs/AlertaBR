@@ -1,3 +1,7 @@
+import { inject } from "@vercel/analytics"
+
+inject()
+
 const DEFAULT_VIEW = {
   center: [-15, -52],
   zoom: 4
