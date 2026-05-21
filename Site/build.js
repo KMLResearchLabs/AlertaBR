@@ -19,6 +19,8 @@ function build() {
   copy("index.html");
   copy("style.css");
   copy("app.js");
+  copy("speed-insights.js");
+  copy("analytics.js");
   copyImages();
 
   fs.writeFileSync(
