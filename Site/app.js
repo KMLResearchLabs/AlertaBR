@@ -4,9 +4,9 @@ const DEFAULT_VIEW = {
 };
 
 const LEVEL_META = {
-  verm: { label: "Perigo", color: "#cb3d32" },
-  lar: { label: "Laranja", color: "#eb8f18" },
-  ama: { label: "Amarelo", color: "#d3b10d" }
+  verm: { label: "Perigo", color: "#7f1116" },
+  lar: { label: "Laranja", color: "#b95a5d" },
+  ama: { label: "Amarelo", color: "#d8a8a9" }
 };
 
 const PHASE_LABELS = {

@@ -8,12 +8,6 @@
   name="description"
   content="Painel climatico conectado a relatorios consolidados na Supabase com mapa, estacoes e noticias."
 >
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link
-  rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
->
 <link
   rel="stylesheet"
   href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -24,19 +18,24 @@
 </head>
 <body>
 <div class="page-shell">
-  <header class="hero">
-    <div class="hero-copy">
-      <p class="eyebrow">Supabase + INMET + agendamento 30 min</p>
+  <header class="site-header">
+    <div class="header-block header-brand">
+      <p class="eyebrow">Monitoramento climatico nacional</p>
       <h1 id="site-title">Happy Nation Climate Center</h1>
-      <p class="hero-text">
-        O frontend le o ultimo relatorio salvo na Supabase e transforma o pacote em mapa,
-        indicadores e noticias operacionais.
+      <p class="header-copy">
+        Leitura publica do ultimo relatorio salvo na Supabase com geometrias, severidade,
+        estacoes amostradas e noticias relacionadas.
       </p>
     </div>
 
-    <div class="hero-actions">
+    <div class="header-block header-report">
+      <p class="section-tag">Relatorio</p>
+      <p class="header-stamp" id="generated-at">Sem relatorio carregado.</p>
       <button class="refresh-button" id="refresh-button" type="button">Atualizar leitura</button>
-      <div class="status-card">
+    </div>
+
+    <div class="header-block header-status">
+      <div class="status-line">
         <span class="status-dot" id="status-dot" aria-hidden="true"></span>
         <div>
           <strong id="status-label">Aguardando dados</strong>
@@ -46,14 +45,33 @@
     </div>
   </header>
 
-  <main class="layout">
+  <main class="dashboard-grid">
+    <section class="panel panel-map">
+      <div class="panel-head panel-head-map">
+        <div>
+          <p class="section-label">Mapa central</p>
+          <h2>Areas renderizadas</h2>
+        </div>
+        <p class="panel-meta" id="map-meta">Sem geometrias carregadas.</p>
+      </div>
+
+      <div class="map-box">
+        <div class="map-frame" aria-hidden="true"></div>
+        <div id="map" aria-label="Mapa dos alertas climaticos"></div>
+      </div>
+
+      <aside class="detail-card" id="alert-detail">
+        <p class="detail-empty">Selecione um alerta para ver detalhes.</p>
+      </aside>
+    </section>
+
     <section class="panel panel-summary">
       <div class="panel-head">
         <div>
           <p class="section-label">Resumo</p>
           <h2>Relatorio atual</h2>
         </div>
-        <p class="panel-meta" id="generated-at">Sem relatorio carregado.</p>
+        <p class="panel-meta">Indicadores principais</p>
       </div>
 
       <div class="summary-grid" id="summary-grid">
@@ -80,16 +98,6 @@
       </div>
     </section>
 
-    <section class="panel panel-highlights">
-      <div class="panel-head">
-        <div>
-          <p class="section-label">Destaques</p>
-          <h2>Pontos de atencao</h2>
-        </div>
-      </div>
-      <div class="highlights-grid" id="highlights-grid"></div>
-    </section>
-
     <section class="panel panel-sources">
       <div class="panel-head">
         <div>
@@ -98,25 +106,6 @@
         </div>
       </div>
       <div class="sources-grid" id="sources-grid"></div>
-    </section>
-
-    <section class="panel panel-map">
-      <div class="panel-head">
-        <div>
-          <p class="section-label">Mapa</p>
-          <h2>Areas renderizadas</h2>
-        </div>
-        <p class="panel-meta" id="map-meta">Sem geometrias carregadas.</p>
-      </div>
-
-      <div class="map-grid">
-        <div class="map-box">
-          <div id="map" aria-label="Mapa dos alertas climaticos"></div>
-        </div>
-        <aside class="detail-card" id="alert-detail">
-          <p class="detail-empty">Selecione um alerta para ver detalhes.</p>
-        </aside>
-      </div>
     </section>
 
     <section class="panel panel-alerts">
@@ -138,6 +127,16 @@
         </div>
       </div>
       <div class="stations-grid" id="stations-grid"></div>
+    </section>
+
+    <section class="panel panel-highlights">
+      <div class="panel-head">
+        <div>
+          <p class="section-label">Destaques</p>
+          <h2>Pontos de atencao</h2>
+        </div>
+      </div>
+      <div class="highlights-grid" id="highlights-grid"></div>
     </section>
 
     <section class="panel panel-news">
