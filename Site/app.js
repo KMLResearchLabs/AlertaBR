@@ -1,10 +1,3 @@
-import { inject } from "@vercel/analytics"
-import { injectSpeedInsights } from '@vercel/speed-insights';
-
-injectSpeedInsights();
-
-inject()
-
 const DEFAULT_VIEW = {
   center: [-15, -52],
   zoom: 4
