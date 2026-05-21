@@ -22,12 +22,12 @@ const ALERT_METADATA_ID = "urn:wmo:md:br-inmet:alerts";
 const STATIONS_COLLECTION_URL = UPSTREAM_BASE_URL + "/oapi/collections/stations/items";
 const SYNOP_COLLECTION_URL = UPSTREAM_BASE_URL + "/oapi/collections/urn:wmo:md:br-inmet:synop/items";
 const ALERT_MESSAGES_URL = UPSTREAM_BASE_URL + "/oapi/collections/messages/items";
-const DEFAULT_ALERT_LIMIT = clampInteger(process.env.ALERTABR_ALERT_OUTPUT_LIMIT, 80, 1, 120);
-const ALERT_FEED_LIMIT = clampInteger(process.env.ALERTABR_ALERT_FEED_LIMIT, 120, 10, 250);
-const ALERT_CACHE_TTL_MS = clampInteger(process.env.ALERTABR_ALERT_CACHE_TTL_MS, 5 * 60 * 1000, 60_000, 30 * 60 * 1000);
-const STATIONS_CACHE_TTL_MS = clampInteger(process.env.ALERTABR_STATIONS_CACHE_TTL_MS, 12 * 60 * 60 * 1000, 5 * 60 * 1000, 24 * 60 * 60 * 1000);
-const OBSERVATION_CACHE_TTL_MS = clampInteger(process.env.ALERTABR_OBSERVATION_CACHE_TTL_MS, 10 * 60 * 1000, 60_000, 60 * 60 * 1000);
-const REQUEST_TIMEOUT_MS = clampInteger(process.env.ALERTABR_REQUEST_TIMEOUT_MS, 15_000, 5_000, 30_000);
+const DEFAULT_ALERT_LIMIT = clampInteger(process.env.INMET_ALERT_OUTPUT_LIMIT, 80, 1, 120);
+const ALERT_FEED_LIMIT = clampInteger(process.env.INMET_ALERT_FEED_LIMIT, 120, 10, 250);
+const ALERT_CACHE_TTL_MS = clampInteger(process.env.INMET_ALERT_CACHE_TTL_MS, 5 * 60 * 1000, 60_000, 30 * 60 * 1000);
+const STATIONS_CACHE_TTL_MS = clampInteger(process.env.INMET_STATIONS_CACHE_TTL_MS, 12 * 60 * 60 * 1000, 5 * 60 * 1000, 24 * 60 * 60 * 1000);
+const OBSERVATION_CACHE_TTL_MS = clampInteger(process.env.INMET_OBSERVATION_CACHE_TTL_MS, 10 * 60 * 1000, 60_000, 60 * 60 * 1000);
+const REQUEST_TIMEOUT_MS = clampInteger(process.env.INMET_REQUEST_TIMEOUT_MS, 15_000, 5_000, 30_000);
 
 async function getDashboardData(options = {}) {
   const alertsPayload = await getAlerts({
@@ -713,7 +713,7 @@ async function fetchJson(url) {
   const response = await fetchWithTimeout(url, {
     headers: {
       "accept": "application/json",
-      "user-agent": "AlertaBR/1.0 (+Render)"
+      "user-agent": "HappyNationBot/1.0 (+Supabase)"
     }
   });
 
@@ -728,7 +728,7 @@ async function fetchText(url) {
   const response = await fetchWithTimeout(url, {
     headers: {
       "accept": "application/xml,text/xml;q=0.9,*/*;q=0.8",
-      "user-agent": "AlertaBR/1.0 (+Render)"
+      "user-agent": "HappyNationBot/1.0 (+Supabase)"
     }
   });
 

@@ -1,13 +1,16 @@
 {
-  "name": "alertabr",
+  "name": "happy-nation",
   "version": "1.0.0",
   "private": true,
-  "description": "AlertaBR com API baseada em dados oficiais do INMET",
-  "main": "server.js",
+  "description": "Plataforma climatica com Site em Supabase e backend agendado",
+  "main": "Servidor/src/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check script.js"
+    "start": "node Servidor/src/server.js",
+    "dev": "node --watch Servidor/src/server.js",
+    "dev:site": "node Site/dev-server.js",
+    "build:site": "node Site/build.js",
+    "report:generate": "node Servidor/scripts/generate-report.js",
+    "check": "node --check shared/load-env.js && node --check Site/build.js && node --check Site/dev-server.js && node --check Site/app.js && node --check Servidor/src/server.js && node --check Servidor/src/config.js && node --check Servidor/src/report-builder.js && node --check Servidor/src/pipeline.js && node --check Servidor/src/supabase.js && node --check Servidor/src/providers/news.js && node --check Servidor/src/providers/inmet.js && node --check Servidor/scripts/generate-report.js"
   },
   "engines": {
     "node": ">=20"
