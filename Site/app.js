@@ -1,3 +1,6 @@
+// Vercel Web Analytics queue initialization
+window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+
 const DEFAULT_VIEW = {
   center: [-15, -52],
   zoom: 4
