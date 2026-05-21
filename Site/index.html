@@ -17,35 +17,32 @@
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+<header class="site-banner">
+  <h1 class="site-banner-title" id="site-title">AlertaBR</h1>
+</header>
+
 <div class="page-shell">
-  <header class="site-header">
-    <div class="header-block header-brand">
-      <p class="eyebrow">Monitoramento climatico nacional</p>
-      <h1 id="site-title">Happy Nation Climate Center</h1>
-      <p class="header-copy">
-        Leitura publica do ultimo relatorio salvo na Supabase com geometrias, severidade,
-        estacoes amostradas e noticias relacionadas.
-      </p>
+  <section class="panel panel-reportbar">
+    <div class="reportbar-block">
+      <p class="section-tag">Relatorio</p>
+      <p class="reportbar-stamp" id="generated-at">Sem relatorio carregado.</p>
     </div>
 
-    <div class="header-block header-control">
-      <div class="header-report-group">
-        <p class="section-tag">Relatorio</p>
-        <p class="header-stamp" id="generated-at">Sem relatorio carregado.</p>
-      </div>
-
-      <div class="header-status-group">
-        <div class="status-line">
-          <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-          <div>
-            <strong id="status-label">Aguardando dados</strong>
-            <p id="status-meta">Configure a conexao com a Supabase.</p>
-          </div>
+    <div class="reportbar-block reportbar-status">
+      <p class="section-tag">Status</p>
+      <div class="status-line">
+        <span class="status-dot" id="status-dot" aria-hidden="true"></span>
+        <div>
+          <strong id="status-label">Aguardando dados</strong>
+          <p id="status-meta">Configure a conexao com a Supabase.</p>
         </div>
-        <button class="refresh-button" id="refresh-button" type="button">Atualizar leitura</button>
       </div>
     </div>
-  </header>
+
+    <div class="reportbar-actions">
+      <button class="refresh-button" id="refresh-button" type="button">Atualizar leitura</button>
+    </div>
+  </section>
 
   <main class="dashboard-shell">
     <section class="panel panel-summary">

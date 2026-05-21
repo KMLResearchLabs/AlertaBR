@@ -66,39 +66,20 @@ body::before {
   margin: 16px auto 28px;
 }
 
-.site-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 0.95fr);
-  gap: 16px;
-  margin-bottom: 16px;
+.site-banner {
+  width: 100%;
+  padding: 18px 24px;
+  background: var(--accent);
+  border-bottom: 1px solid #5e0d11;
 }
 
-.header-block {
-  padding: 24px;
-  border: 1px solid var(--line-strong);
-  background: var(--surface);
-}
-
-.header-brand {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 186px;
-  background: linear-gradient(135deg, var(--accent) 0 78%, #5e0d11 78% 100%);
+.site-banner-title {
+  margin: 0;
   color: #ffffff;
-}
-
-.header-control {
-  display: grid;
-  gap: 22px;
-  min-height: 186px;
-  align-content: space-between;
-}
-
-.header-report-group,
-.header-status-group {
-  display: grid;
-  gap: 16px;
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
 }
 
 .eyebrow,
@@ -110,15 +91,13 @@ body::before {
 .station-meta,
 .station-row,
 .news-meta,
-.header-stamp,
-.header-copy,
+.reportbar-stamp,
 .status-line p,
 .status-line strong,
 .detail-list {
   letter-spacing: 0.01em;
 }
 
-.eyebrow,
 .section-label,
 .section-tag {
   margin: 0 0 10px;
@@ -128,37 +107,38 @@ body::before {
   text-transform: uppercase;
 }
 
-.eyebrow {
-  color: rgba(255, 255, 255, 0.84);
-}
-
 .section-label,
 .section-tag {
   color: var(--accent);
 }
 
-.header-brand h1 {
+.reportbar-stamp {
   margin: 0;
-  max-width: 7ch;
-  font-size: clamp(2.9rem, 5vw, 5.5rem);
-  line-height: 0.88;
-  letter-spacing: -0.07em;
-}
-
-.header-copy {
-  max-width: 46ch;
-  margin: 20px 0 0;
-  font-size: 15px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.header-stamp {
-  margin: 0;
-  max-width: 10ch;
-  font-size: clamp(2rem, 3vw, 3.3rem);
-  line-height: 0.96;
+  max-width: 12ch;
+  font-size: clamp(1.8rem, 2.7vw, 2.8rem);
+  line-height: 0.98;
   letter-spacing: -0.06em;
+}
+
+.panel-reportbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 1fr) auto;
+  gap: 24px;
+  align-items: end;
+}
+
+.reportbar-block,
+.reportbar-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.reportbar-status {
+  align-content: start;
+}
+
+.reportbar-actions {
+  justify-items: start;
 }
 
 .refresh-button {
@@ -614,7 +594,7 @@ body::before {
 }
 
 @media (max-width: 1220px) {
-  .site-header,
+  .panel-reportbar,
   .workspace-grid,
   .support-grid,
   .insight-grid {
@@ -638,27 +618,14 @@ body::before {
     background-size: 80px 80px;
   }
 
+  .site-banner {
+    padding: 16px 18px;
+  }
+
   .page-shell {
     width: 100%;
     margin: 0;
     padding: 12px;
-  }
-
-  .site-header {
-    grid-template-columns: 1fr;
-  }
-
-  .header-block {
-    padding: 20px;
-  }
-
-  .header-brand,
-  .header-control {
-    min-height: auto;
-  }
-
-  .header-brand h1 {
-    max-width: none;
   }
 
   .summary-grid,

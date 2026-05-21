@@ -158,9 +158,10 @@ async function fetchLatestReport() {
 
 function renderReport() {
   const report = state.report;
-  const runtimeConfig = getRuntimeConfig();
 
-  elements.siteTitle.textContent = runtimeConfig.siteName || "Happy Nation Climate Center";
+  if (elements.siteTitle) {
+    elements.siteTitle.textContent = "AlertaBR";
+  }
   elements.generatedAt.textContent = "Gerado em " + formatDateTime(report.generatedAt);
   elements.summaryActiveAlerts.textContent = safeValue(report.summary && report.summary.activeAlerts);
   elements.summaryStates.textContent = safeValue(report.summary && report.summary.statesAffected);
