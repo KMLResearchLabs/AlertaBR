@@ -6,6 +6,7 @@ const { loadEnv } = require("../shared/load-env");
 const rootDir = path.resolve(__dirname, "..");
 const siteDir = __dirname;
 const distDir = path.join(siteDir, "dist");
+const imagesDir = path.join(rootDir, "images");
 
 loadEnv({ cwd: rootDir });
 
@@ -18,6 +19,7 @@ function build() {
   copy("index.html");
   copy("style.css");
   copy("app.js");
+  copyImages();
 
   fs.writeFileSync(
     path.join(distDir, "config.js"),
@@ -29,6 +31,14 @@ function build() {
 
 function copy(filename) {
   fs.copyFileSync(path.join(siteDir, filename), path.join(distDir, filename));
+}
+
+function copyImages() {
+  if (!fs.existsSync(imagesDir)) {
+    return;
+  }
+
+  fs.cpSync(imagesDir, path.join(distDir, "images"), { recursive: true });
 }
 
 function getRuntimeConfig() {

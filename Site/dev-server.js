@@ -13,17 +13,20 @@ const port = Number(process.env.SITE_PORT || 4173);
 
 const server = http.createServer((request, response) => {
   const url = new URL(request.url || "/", "http://localhost");
+  const pathname = decodeURIComponent(url.pathname);
 
-  if (url.pathname === "/config.js") {
+  if (pathname === "/config.js") {
     response.writeHead(200, { "content-type": "application/javascript; charset=utf-8" });
     response.end("window.HAPPY_NATION_CONFIG = " + JSON.stringify(getRuntimeConfig(), null, 2) + ";\n");
     return;
   }
 
-  const filename = url.pathname === "/" ? "index.html" : url.pathname.replace(/^\/+/, "");
-  const filePath = path.join(siteDir, filename);
+  const isImageRequest = pathname.startsWith("/images/");
+  const baseDir = isImageRequest ? rootDir : siteDir;
+  const filename = pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
+  const filePath = path.resolve(baseDir, filename);
 
-  if (!filePath.startsWith(siteDir) || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+  if (!filePath.startsWith(baseDir + path.sep) || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     response.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
     response.end("Arquivo nao encontrado.");
     return;
@@ -53,6 +56,14 @@ function contentTypeFor(filename) {
 
   if (filename.endsWith(".js")) {
     return "application/javascript; charset=utf-8";
+  }
+
+  if (filename.endsWith(".png")) {
+    return "image/png";
+  }
+
+  if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+    return "image/jpeg";
   }
 
   return "text/html; charset=utf-8";
