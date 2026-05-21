@@ -107,7 +107,7 @@ async function loadReport() {
     setStatus(
       "ready",
       "Relatorio carregado",
-      "Supabase respondeu com o pacote salvo em " + formatDateTime(report.generatedAt) + "."
+      "Utilizando o pacote salvo em " + formatDateTime(report.generatedAt) + "."
     );
   } catch (error) {
     console.error(error);
