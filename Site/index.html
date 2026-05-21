@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Happy Nation | Centro Climatico</title>
+<title>AlertaBR</title>
 <meta
   name="description"
   content="Painel climatico conectado a relatorios consolidados no algoritmo com mapa, estacoes e noticias."
@@ -18,153 +18,215 @@
 </head>
 <body>
 <header class="site-banner">
-  <h1 class="site-banner-title" id="site-title">AlertaBR</h1>
+  <div class="site-banner-inner">
+    <h1 class="site-banner-title" id="site-title">AlertaBR</h1>
+    <button
+      class="menu-button"
+      id="menu-button"
+      type="button"
+      aria-label="Abrir menu"
+      aria-controls="site-menu"
+      aria-expanded="false"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
 </header>
 
+<div class="menu-backdrop" id="menu-backdrop" hidden></div>
+
+<aside class="site-menu" id="site-menu" aria-hidden="true">
+  <div class="site-menu-head">
+    <h2>Menu</h2>
+    <button class="menu-close" id="menu-close" type="button" aria-label="Fechar menu">Fechar</button>
+  </div>
+
+  <nav class="site-menu-nav" aria-label="Navegacao principal">
+    <button class="site-menu-link is-active" type="button" data-view-target="home">Home</button>
+    <button class="site-menu-link" type="button" data-view-target="about">Sobre nos</button>
+  </nav>
+</aside>
+
 <div class="page-shell">
-  <section class="panel panel-reportbar">
-    <div class="reportbar-block">
-      <p class="section-tag">Relatorio</p>
-      <p class="reportbar-stamp" id="generated-at">Sem relatorio carregado.</p>
-    </div>
-
-    <div class="reportbar-block reportbar-status">
-      <p class="section-tag">Status</p>
-      <div class="status-line">
-        <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-        <div>
-          <strong id="status-label">Aguardando dados</strong>
-          <p id="status-meta">Erro ao carregar dados.</p>
+  <main class="app-views">
+    <section class="app-view is-active" id="view-home" data-view="home">
+      <section class="panel panel-reportbar">
+        <div class="reportbar-block">
+          <p class="section-tag">Relatorio</p>
+          <p class="reportbar-stamp" id="generated-at">Sem relatorio carregado.</p>
         </div>
-      </div>
-    </div>
 
-    <div class="reportbar-actions">
-      <button class="refresh-button" id="refresh-button" type="button">Atualizar leitura</button>
-    </div>
-  </section>
-
-  <main class="dashboard-shell">
-    <section class="panel panel-summary">
-      <div class="panel-head">
-        <div>
-          <p class="section-label">Resumo</p>
-          <h2>Relatorio atual</h2>
-        </div>
-        <p class="panel-meta">Indicadores principais</p>
-      </div>
-
-      <div class="summary-grid" id="summary-grid">
-        <article class="metric-card">
-          <span class="metric-label">Alertas ativos</span>
-          <strong class="metric-value" id="metric-active-alerts">-</strong>
-          <span class="metric-detail">Aguardando leitura</span>
-        </article>
-        <article class="metric-card">
-          <span class="metric-label">Estados afetados</span>
-          <strong class="metric-value" id="metric-states">-</strong>
-          <span class="metric-detail">Cobertura territorial</span>
-        </article>
-        <article class="metric-card">
-          <span class="metric-label">Maior severidade</span>
-          <strong class="metric-value" id="metric-severity">-</strong>
-          <span class="metric-detail">Baseado no INMET</span>
-        </article>
-        <article class="metric-card">
-          <span class="metric-label">Estacoes amostradas</span>
-          <strong class="metric-value" id="metric-stations">-</strong>
-          <span class="metric-detail">Leituras regionais</span>
-        </article>
-      </div>
-    </section>
-
-    <section class="workspace-grid">
-      <div class="workspace-main">
-        <section class="panel panel-map">
-          <div class="panel-head panel-head-map">
+        <div class="reportbar-block reportbar-status">
+          <p class="section-tag">Status</p>
+          <div class="status-line">
+            <span class="status-dot" id="status-dot" aria-hidden="true"></span>
             <div>
-              <p class="section-label">Mapa central</p>
-              <h2>Areas renderizadas</h2>
+              <strong id="status-label">Aguardando dados</strong>
+              <p id="status-meta">Erro ao carregar dados.</p>
             </div>
-            <p class="panel-meta" id="map-meta">Sem geometrias carregadas.</p>
+          </div>
+        </div>
+
+        <div class="reportbar-actions">
+          <button class="refresh-button" id="refresh-button" type="button">Atualizar leitura</button>
+        </div>
+      </section>
+
+      <div class="dashboard-shell">
+        <section class="panel panel-summary">
+          <div class="panel-head">
+            <div>
+              <p class="section-label">Resumo</p>
+              <h2>Relatorio atual</h2>
+            </div>
+            <p class="panel-meta">Indicadores principais</p>
           </div>
 
-          <div class="map-box">
-            <div class="map-frame" aria-hidden="true"></div>
-            <div id="map" aria-label="Mapa dos alertas climaticos"></div>
+          <div class="summary-grid" id="summary-grid">
+            <article class="metric-card">
+              <span class="metric-label">Alertas ativos</span>
+              <strong class="metric-value" id="metric-active-alerts">-</strong>
+              <span class="metric-detail">Aguardando leitura</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Estados afetados</span>
+              <strong class="metric-value" id="metric-states">-</strong>
+              <span class="metric-detail">Cobertura territorial</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Maior severidade</span>
+              <strong class="metric-value" id="metric-severity">-</strong>
+              <span class="metric-detail">Baseado no INMET</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Estacoes amostradas</span>
+              <strong class="metric-value" id="metric-stations">-</strong>
+              <span class="metric-detail">Leituras regionais</span>
+            </article>
           </div>
         </section>
 
-        <section class="panel panel-detail">
-          <div class="panel-head">
-            <div>
-              <p class="section-label">Alerta selecionado</p>
-              <h2>Detalhe operacional</h2>
-            </div>
-            <p class="panel-meta">Contexto, municipios e validade</p>
+        <section class="workspace-grid">
+          <div class="workspace-main">
+            <section class="panel panel-map">
+              <div class="panel-head panel-head-map">
+                <div>
+                  <p class="section-label">Mapa central</p>
+                  <h2>Areas renderizadas</h2>
+                </div>
+                <p class="panel-meta" id="map-meta">Sem geometrias carregadas.</p>
+              </div>
+
+              <div class="map-box">
+                <div class="map-frame" aria-hidden="true"></div>
+                <div id="map" aria-label="Mapa dos alertas climaticos"></div>
+              </div>
+            </section>
+
+            <section class="panel panel-detail">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Alerta selecionado</p>
+                  <h2>Detalhe operacional</h2>
+                </div>
+                <p class="panel-meta">Contexto, municipios e validade</p>
+              </div>
+
+              <aside class="detail-card" id="alert-detail">
+                <p class="detail-empty">Selecione um alerta para ver detalhes.</p>
+              </aside>
+            </section>
           </div>
 
-          <aside class="detail-card" id="alert-detail">
-            <p class="detail-empty">Selecione um alerta para ver detalhes.</p>
+          <aside class="workspace-side">
+            <section class="panel panel-alerts">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Alertas</p>
+                  <h2>Fila operacional</h2>
+                </div>
+                <p class="panel-meta" id="alert-count">0 item(ns)</p>
+              </div>
+              <div class="alert-list" id="alert-list"></div>
+            </section>
           </aside>
         </section>
-      </div>
 
-      <aside class="workspace-side">
-        <section class="panel panel-alerts">
-          <div class="panel-head">
-            <div>
-              <p class="section-label">Alertas</p>
-              <h2>Fila operacional</h2>
+        <section class="support-grid">
+          <section class="panel panel-stations">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Estacoes</p>
+                <h2>Amostra climatica</h2>
+              </div>
             </div>
-            <p class="panel-meta" id="alert-count">0 item(ns)</p>
-          </div>
-          <div class="alert-list" id="alert-list"></div>
+            <div class="stations-grid" id="stations-grid"></div>
+          </section>
+
+          <section class="panel panel-news">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Noticias</p>
+                <h2>Feed relacionado</h2>
+              </div>
+            </div>
+            <div class="news-list" id="news-list"></div>
+          </section>
         </section>
-      </aside>
+
+        <section class="insight-grid">
+          <section class="panel panel-sources">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Fontes</p>
+                <h2>Saude da coleta</h2>
+              </div>
+            </div>
+            <div class="sources-grid" id="sources-grid"></div>
+          </section>
+
+          <section class="panel panel-highlights">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">Destaques</p>
+                <h2>Pontos de atencao</h2>
+              </div>
+            </div>
+            <div class="highlights-grid" id="highlights-grid"></div>
+          </section>
+        </section>
+      </div>
     </section>
 
-    <section class="support-grid">
-      <section class="panel panel-stations">
+    <section class="app-view" id="view-about" data-view="about">
+      <section class="panel panel-about">
         <div class="panel-head">
           <div>
-            <p class="section-label">Estacoes</p>
-            <h2>Amostra climatica</h2>
+            <p class="section-label">Institucional</p>
+            <h2>Sobre nos</h2>
           </div>
+          <p class="panel-meta">Espaco reservado para contexto do projeto</p>
         </div>
-        <div class="stations-grid" id="stations-grid"></div>
-      </section>
 
-      <section class="panel panel-news">
-        <div class="panel-head">
-          <div>
-            <p class="section-label">Noticias</p>
-            <h2>Feed relacionado</h2>
-          </div>
-        </div>
-        <div class="news-list" id="news-list"></div>
-      </section>
-    </section>
+        <div class="about-layout">
+          <article class="about-card">
+            <h3>Pagina em preparacao</h3>
+            <p>
+              Esta area foi criada para receber os detalhes institucionais do AlertaBR. Quando voce
+              passar o conteudo, eu encaixo aqui sem mexer na navegacao principal.
+            </p>
+          </article>
 
-    <section class="insight-grid">
-      <section class="panel panel-sources">
-        <div class="panel-head">
-          <div>
-            <p class="section-label">Fontes</p>
-            <h2>Saude da coleta</h2>
-          </div>
+          <article class="about-card">
+            <h3>O que entra aqui depois</h3>
+            <p>
+              Historico do projeto, metodologia de consolidacao, fontes de dados e qualquer outra
+              explicacao que precise ficar acessivel fora do painel operacional.
+            </p>
+          </article>
         </div>
-        <div class="sources-grid" id="sources-grid"></div>
-      </section>
-
-      <section class="panel panel-highlights">
-        <div class="panel-head">
-          <div>
-            <p class="section-label">Destaques</p>
-            <h2>Pontos de atencao</h2>
-          </div>
-        </div>
-        <div class="highlights-grid" id="highlights-grid"></div>
       </section>
     </section>
   </main>

@@ -23,7 +23,10 @@ const state = {
   polygonLayer: null,
   markerLayer: null,
   loading: false,
-  mapFlashCard: null
+  mapFlashCard: null,
+  currentView: "home",
+  menuOpen: false,
+  menuBackdropTimer: null
 };
 
 const elements = {};
@@ -32,11 +35,18 @@ document.addEventListener("DOMContentLoaded", () => {
   cacheElements();
   bindEvents();
   initMap();
+  syncViewFromHash();
   loadReport();
 });
 
 function cacheElements() {
   elements.siteTitle = document.getElementById("site-title");
+  elements.menuButton = document.getElementById("menu-button");
+  elements.menuBackdrop = document.getElementById("menu-backdrop");
+  elements.siteMenu = document.getElementById("site-menu");
+  elements.menuClose = document.getElementById("menu-close");
+  elements.viewLinks = Array.from(document.querySelectorAll("[data-view-target]"));
+  elements.views = Array.from(document.querySelectorAll(".app-view"));
   elements.refreshButton = document.getElementById("refresh-button");
   elements.statusDot = document.getElementById("status-dot");
   elements.statusLabel = document.getElementById("status-label");
@@ -57,9 +67,45 @@ function cacheElements() {
 }
 
 function bindEvents() {
-  elements.refreshButton.addEventListener("click", () => {
-    loadReport();
+  if (elements.menuButton) {
+    elements.menuButton.addEventListener("click", () => {
+      setMenuOpen(!state.menuOpen);
+    });
+  }
+
+  if (elements.menuClose) {
+    elements.menuClose.addEventListener("click", () => {
+      setMenuOpen(false);
+    });
+  }
+
+  if (elements.menuBackdrop) {
+    elements.menuBackdrop.addEventListener("click", () => {
+      setMenuOpen(false);
+    });
+  }
+
+  elements.viewLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      setView(link.getAttribute("data-view-target"));
+    });
   });
+
+  window.addEventListener("hashchange", () => {
+    setView(viewFromHash(), { updateHash: false });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && state.menuOpen) {
+      setMenuOpen(false);
+    }
+  });
+
+  if (elements.refreshButton) {
+    elements.refreshButton.addEventListener("click", () => {
+      loadReport();
+    });
+  }
 
   elements.alertList.addEventListener("click", (event) => {
     const trigger = event.target.closest("[data-alert-id]");
@@ -69,6 +115,82 @@ function bindEvents() {
 
     selectAlert(trigger.getAttribute("data-alert-id"), false);
   });
+}
+
+function syncViewFromHash() {
+  setView(viewFromHash(), { updateHash: false });
+}
+
+function viewFromHash() {
+  return window.location.hash === "#about" ? "about" : "home";
+}
+
+function setMenuOpen(isOpen) {
+  if (!elements.siteMenu || !elements.menuButton || !elements.menuBackdrop) {
+    return;
+  }
+
+  if (state.menuBackdropTimer) {
+    window.clearTimeout(state.menuBackdropTimer);
+    state.menuBackdropTimer = null;
+  }
+
+  state.menuOpen = Boolean(isOpen);
+  elements.menuButton.setAttribute("aria-expanded", String(state.menuOpen));
+  elements.siteMenu.classList.toggle("is-open", state.menuOpen);
+  elements.siteMenu.setAttribute("aria-hidden", String(!state.menuOpen));
+  document.body.classList.toggle("menu-open", state.menuOpen);
+
+  if (state.menuOpen) {
+    elements.menuBackdrop.hidden = false;
+    window.requestAnimationFrame(() => {
+      elements.menuBackdrop.classList.add("is-visible");
+    });
+    return;
+  }
+
+  elements.menuBackdrop.classList.remove("is-visible");
+  state.menuBackdropTimer = window.setTimeout(() => {
+    if (!state.menuOpen && elements.menuBackdrop) {
+      elements.menuBackdrop.hidden = true;
+    }
+  }, 180);
+}
+
+function setView(view, options = {}) {
+  const nextView = view === "about" ? "about" : "home";
+  const shouldUpdateHash = options.updateHash !== false;
+
+  state.currentView = nextView;
+
+  elements.views.forEach((panel) => {
+    const isActive = panel.getAttribute("data-view") === nextView;
+    panel.classList.toggle("is-active", isActive);
+    panel.hidden = !isActive;
+  });
+
+  elements.viewLinks.forEach((link) => {
+    const isActive = link.getAttribute("data-view-target") === nextView;
+    link.classList.toggle("is-active", isActive);
+  });
+
+  if (shouldUpdateHash) {
+    const nextHash = nextView === "about" ? "#about" : "#home";
+    window.history.replaceState(null, "", nextHash);
+  }
+
+  setMenuOpen(false);
+
+  if (nextView !== "home") {
+    closeMapFlashCard();
+    return;
+  }
+
+  if (state.map) {
+    window.setTimeout(() => {
+      state.map.invalidateSize();
+    }, 50);
+  }
 }
 
 function initMap() {
