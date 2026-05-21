@@ -45,109 +45,125 @@
     </div>
   </header>
 
-  <main class="dashboard-grid">
-    <section class="panel panel-map">
-      <div class="panel-head panel-head-map">
-        <div>
-          <p class="section-label">Mapa central</p>
-          <h2>Areas renderizadas</h2>
+  <main class="dashboard-columns">
+    <div class="dashboard-column dashboard-column-left">
+      <section class="panel panel-summary">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Resumo</p>
+            <h2>Relatorio atual</h2>
+          </div>
+          <p class="panel-meta">Indicadores principais</p>
         </div>
-        <p class="panel-meta" id="map-meta">Sem geometrias carregadas.</p>
-      </div>
 
-      <div class="map-box">
-        <div class="map-frame" aria-hidden="true"></div>
-        <div id="map" aria-label="Mapa dos alertas climaticos"></div>
-      </div>
-
-      <aside class="detail-card" id="alert-detail">
-        <p class="detail-empty">Selecione um alerta para ver detalhes.</p>
-      </aside>
-    </section>
-
-    <section class="panel panel-summary">
-      <div class="panel-head">
-        <div>
-          <p class="section-label">Resumo</p>
-          <h2>Relatorio atual</h2>
+        <div class="summary-grid" id="summary-grid">
+          <article class="metric-card">
+            <span class="metric-label">Alertas ativos</span>
+            <strong class="metric-value" id="metric-active-alerts">-</strong>
+            <span class="metric-detail">Aguardando leitura</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Estados afetados</span>
+            <strong class="metric-value" id="metric-states">-</strong>
+            <span class="metric-detail">Cobertura territorial</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Maior severidade</span>
+            <strong class="metric-value" id="metric-severity">-</strong>
+            <span class="metric-detail">Baseado no INMET</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Estacoes amostradas</span>
+            <strong class="metric-value" id="metric-stations">-</strong>
+            <span class="metric-detail">Leituras regionais</span>
+          </article>
         </div>
-        <p class="panel-meta">Indicadores principais</p>
-      </div>
+      </section>
 
-      <div class="summary-grid" id="summary-grid">
-        <article class="metric-card">
-          <span class="metric-label">Alertas ativos</span>
-          <strong class="metric-value" id="metric-active-alerts">-</strong>
-          <span class="metric-detail">Aguardando leitura</span>
-        </article>
-        <article class="metric-card">
-          <span class="metric-label">Estados afetados</span>
-          <strong class="metric-value" id="metric-states">-</strong>
-          <span class="metric-detail">Cobertura territorial</span>
-        </article>
-        <article class="metric-card">
-          <span class="metric-label">Maior severidade</span>
-          <strong class="metric-value" id="metric-severity">-</strong>
-          <span class="metric-detail">Baseado no INMET</span>
-        </article>
-        <article class="metric-card">
-          <span class="metric-label">Estacoes amostradas</span>
-          <strong class="metric-value" id="metric-stations">-</strong>
-          <span class="metric-detail">Leituras regionais</span>
-        </article>
-      </div>
-    </section>
-
-    <section class="panel panel-sources">
-      <div class="panel-head">
-        <div>
-          <p class="section-label">Fontes</p>
-          <h2>Saude da coleta</h2>
+      <section class="panel panel-highlights">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Destaques</p>
+            <h2>Pontos de atencao</h2>
+          </div>
         </div>
-      </div>
-      <div class="sources-grid" id="sources-grid"></div>
-    </section>
+        <div class="highlights-grid" id="highlights-grid"></div>
+      </section>
 
-    <section class="panel panel-alerts">
-      <div class="panel-head">
-        <div>
-          <p class="section-label">Alertas</p>
-          <h2>Lista operacional</h2>
+      <section class="panel panel-alerts">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Alertas</p>
+            <h2>Lista operacional</h2>
+          </div>
+          <p class="panel-meta" id="alert-count">0 item(ns)</p>
         </div>
-        <p class="panel-meta" id="alert-count">0 item(ns)</p>
-      </div>
-      <div class="alert-list" id="alert-list"></div>
-    </section>
+        <div class="alert-list" id="alert-list"></div>
+      </section>
+    </div>
 
-    <section class="panel panel-stations">
-      <div class="panel-head">
-        <div>
-          <p class="section-label">Estacoes</p>
-          <h2>Amostra climatica</h2>
+    <div class="dashboard-column dashboard-column-main">
+      <section class="panel panel-map">
+        <div class="panel-head panel-head-map">
+          <div>
+            <p class="section-label">Mapa central</p>
+            <h2>Areas renderizadas</h2>
+          </div>
+          <p class="panel-meta" id="map-meta">Sem geometrias carregadas.</p>
         </div>
-      </div>
-      <div class="stations-grid" id="stations-grid"></div>
-    </section>
 
-    <section class="panel panel-highlights">
-      <div class="panel-head">
-        <div>
-          <p class="section-label">Destaques</p>
-          <h2>Pontos de atencao</h2>
+        <div class="map-box">
+          <div class="map-frame" aria-hidden="true"></div>
+          <div id="map" aria-label="Mapa dos alertas climaticos"></div>
         </div>
-      </div>
-      <div class="highlights-grid" id="highlights-grid"></div>
-    </section>
+      </section>
 
-    <section class="panel panel-news">
-      <div class="panel-head">
-        <div>
-          <p class="section-label">Noticias</p>
-          <h2>Feed relacionado</h2>
+      <section class="panel panel-detail">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Alerta selecionado</p>
+            <h2>Detalhe operacional</h2>
+          </div>
+          <p class="panel-meta">Contexto, municipios e validade</p>
         </div>
-      </div>
-      <div class="news-list" id="news-list"></div>
-    </section>
+
+        <aside class="detail-card" id="alert-detail">
+          <p class="detail-empty">Selecione um alerta para ver detalhes.</p>
+        </aside>
+      </section>
+    </div>
+
+    <div class="dashboard-column dashboard-column-right">
+      <section class="panel panel-sources">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Fontes</p>
+            <h2>Saude da coleta</h2>
+          </div>
+        </div>
+        <div class="sources-grid" id="sources-grid"></div>
+      </section>
+
+      <section class="panel panel-stations">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Estacoes</p>
+            <h2>Amostra climatica</h2>
+          </div>
+        </div>
+        <div class="stations-grid" id="stations-grid"></div>
+      </section>
+
+      <section class="panel panel-news">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Noticias</p>
+            <h2>Feed relacionado</h2>
+          </div>
+        </div>
+        <div class="news-list" id="news-list"></div>
+      </section>
+    </div>
   </main>
 </div>
 

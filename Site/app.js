@@ -249,7 +249,10 @@ function renderStations(items) {
         stationRow("Umidade", formatMetric(item.metrics && item.metrics.relativeHumidity)) +
         stationRow("Chuva 1h", formatMetric(item.metrics && item.metrics.precipitationLastHour)) +
         stationRow("Vento", formatMetric(item.metrics && item.metrics.windSpeed)) +
-        stationRow("Distancia", item.distanceKm ? String(item.distanceKm) + " km" : "n/d") +
+        stationRow(
+          "Distancia",
+          item.distanceKm !== undefined && item.distanceKm !== null ? formatNumber(item.distanceKm) + " km" : "n/d"
+        ) +
       "</div>" +
       "<p class=\"station-meta\">Observado em " + escapeHtml(formatDateTime(item.observedAt)) + "</p>" +
     "</article>"
@@ -285,6 +288,7 @@ function renderSelectedAlert() {
   const municipalities = Array.isArray(alert.area && alert.area.municipalitiesPreview)
     ? alert.area.municipalitiesPreview.slice(0, 8).map((item) => item.name + " - " + item.state).join(", ")
     : "";
+  const safeUrl = safeExternalUrl(alert.webUrl);
 
   elements.alertDetail.innerHTML =
     "<div class=\"detail-badge-row\">" +
@@ -298,7 +302,7 @@ function renderSelectedAlert() {
       detailLine("Estados", formatStates(alert.area && alert.area.states)) +
       detailLine("Municipios", municipalities || "Sem amostra") +
       detailLine("Validade", formatDateTime(alert.onset) + " ate " + formatDateTime(alert.expires)) +
-      detailLine("Link oficial", alert.webUrl || "Nao informado") +
+      detailLinkLine("Link oficial", safeUrl) +
     "</ul>";
 }
 
@@ -450,6 +454,19 @@ function detailLine(label, value) {
   return "<li><strong>" + escapeHtml(label) + ":</strong> " + escapeHtml(value || "n/d") + "</li>";
 }
 
+function detailLinkLine(label, url) {
+  if (!url) {
+    return detailLine(label, "Nao informado");
+  }
+
+  return (
+    "<li><strong>" + escapeHtml(label) + ":</strong> " +
+    "<a class=\"detail-link\" href=\"" + escapeHtml(url) + "\" target=\"_blank\" rel=\"noopener noreferrer\" referrerpolicy=\"no-referrer\">" +
+    "Abrir aviso oficial" +
+    "</a></li>"
+  );
+}
+
 function formatStates(states) {
   if (!Array.isArray(states) || !states.length) {
     return "Sem UF";
@@ -463,7 +480,20 @@ function formatMetric(metric) {
     return "n/d";
   }
 
-  return String(metric.value) + (metric.units ? " " + metric.units : "");
+  return formatNumber(metric.value) + (metric.units ? " " + metric.units : "");
+}
+
+function formatNumber(value) {
+  const numeric = Number(value);
+
+  if (!Number.isFinite(numeric)) {
+    return String(value);
+  }
+
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  }).format(numeric);
 }
 
 function formatDateTime(value) {
