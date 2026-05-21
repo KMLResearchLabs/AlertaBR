@@ -92,7 +92,7 @@ async function loadReport() {
   }
 
   state.loading = true;
-  setStatus("loading", "Consultando Supabase", "Buscando o ultimo relatorio publicado.");
+  setStatus("loading", "Consultando base de dados", "Buscando o ultimo relatorio publicado.");
 
   try {
     const report = await fetchLatestReport();
