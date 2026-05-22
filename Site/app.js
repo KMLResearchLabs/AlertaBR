@@ -300,7 +300,9 @@ function renderReport() {
   elements.summaryStates.textContent = safeValue(report.summary && report.summary.statesAffected);
   elements.summarySeverity.textContent = safeValue(report.summary && report.summary.highestSeverity);
   elements.summaryStations.textContent = safeValue(report.summary && report.summary.stationsSampled);
-  elements.mapMeta.textContent = buildMapMeta(report);
+  if (elements.mapMeta) {
+    elements.mapMeta.textContent = buildMapMeta(report);
+  }
   elements.alertCount.textContent = (Array.isArray(report.alerts) ? report.alerts.length : 0) + " item(ns)";
 
   renderHighlights(report.highlights);
@@ -658,7 +660,9 @@ function renderError(error) {
   elements.summaryStates.textContent = "-";
   elements.summarySeverity.textContent = "-";
   elements.summaryStations.textContent = "-";
-  elements.mapMeta.textContent = "Sem geometrias carregadas.";
+  if (elements.mapMeta) {
+    elements.mapMeta.textContent = "Sem geometrias carregadas.";
+  }
   elements.alertCount.textContent = "0 item(ns)";
   elements.highlightsGrid.innerHTML = "<div class=\"empty-state\">" + escapeHtml(buildErrorMessage(error)) + "</div>";
   elements.sourcesGrid.innerHTML = "<div class=\"empty-state\">Configure `SITE_SUPABASE_URL` e `SITE_SUPABASE_ANON_KEY` para ativar o painel.</div>";
