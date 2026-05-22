@@ -1,15 +1,17 @@
 # AlertaBR
 
-Arquitetura separada em duas pastas:
+Arquitetura separada em três áreas:
 
 - `Site/`: frontend estático que lê o último relatório salvo na Supabase e renderiza mapa, cards, alertas, estações e notícias.
 - `Servidor/`: backend agendado que coleta dados do INMET, relaciona notícias, monta o relatório e faz upsert na Supabase.
+- `API/`: API separada para deploy no Render, protegida por API keys validadas na Supabase.
 
 ## Estrutura
 
 ```text
 Site/
 Servidor/
+API/
 shared/
 .github/workflows/refresh-report.yml
 ```
@@ -55,6 +57,12 @@ Backend HTTP opcional:
 
 ```bash
 npm run dev
+```
+
+API para Render:
+
+```bash
+npm run dev:api
 ```
 
 Gerar e salvar o relatório manualmente:
@@ -126,3 +134,8 @@ O frontend lê direto da Supabase com chave anônima pública. O backend escreve
 ## Deploy seguro
 
 O roteiro exato de deploy seguro está em [`SECURITY.md`](SECURITY.md).
+
+## API no Render
+
+A API protegida por API key fica em [`API/README.md`](API/README.md).
+Antes do deploy, rode também o SQL de [`API/supabase/schema.sql`](API/supabase/schema.sql) para criar a tabela `api_keys`.

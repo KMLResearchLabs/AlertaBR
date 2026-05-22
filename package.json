@@ -7,10 +7,12 @@
   "scripts": {
     "start": "node Servidor/src/server.js",
     "dev": "node --watch Servidor/src/server.js",
+    "start:api": "node API/src/server.js",
+    "dev:api": "node --watch API/src/server.js",
     "dev:site": "node Site/dev-server.js",
     "build:site": "node Site/build.js",
     "report:generate": "node Servidor/scripts/generate-report.js",
-    "check": "node --check shared/load-env.js && node --check Site/build.js && node --check Site/dev-server.js && node --check Site/app.js && node --check Servidor/src/server.js && node --check Servidor/src/config.js && node --check Servidor/src/report-builder.js && node --check Servidor/src/pipeline.js && node --check Servidor/src/supabase.js && node --check Servidor/src/providers/news.js && node --check Servidor/src/providers/inmet.js && node --check Servidor/scripts/generate-report.js"
+    "check": "node --check shared/load-env.js && node --check Site/build.js && node --check Site/dev-server.js && node --check Site/app.js && node --check Servidor/src/server.js && node --check Servidor/src/config.js && node --check Servidor/src/report-builder.js && node --check Servidor/src/pipeline.js && node --check Servidor/src/supabase.js && node --check Servidor/src/providers/news.js && node --check Servidor/src/providers/inmet.js && node --check Servidor/scripts/generate-report.js && node --check API/src/config.js && node --check API/src/supabase.js && node --check API/src/server.js"
   },
   "engines": {
     "node": ">=20"
