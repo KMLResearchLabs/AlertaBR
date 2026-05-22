@@ -38,7 +38,7 @@ async function buildClimateReport() {
     reportKey: config.reportKey,
     generatedAt,
     cadenceMinutes: config.reportCadenceMinutes,
-    description: "Relatorio consolidado para monitoramento climatico, operado por agendamento e armazenado na Supabase.",
+    description: "Relatório consolidado para monitoramento climático, operado por agendamento e armazenado na Supabase.",
     summary: {
       totalAlerts: alerts.length,
       activeAlerts: activeAlerts.length,
@@ -92,10 +92,10 @@ async function buildClimateReport() {
       },
       {
         id: "inmet-stations",
-        label: "INMET Estacoes",
+        label: "INMET Estações",
         status: stationSnapshot.failed > 0 ? "partial" : "ok",
         updatedAt: stationSnapshot.latestObservedAt,
-        detail: stationSnapshot.items.length + " regioes amostradas; " + stationSnapshot.failed + " falha(s)."
+        detail: stationSnapshot.items.length + " regiões amostradas; " + stationSnapshot.failed + " falha(s)."
       },
       ...newsBundle.sources.map((source) => ({
         ...source,
@@ -277,7 +277,7 @@ function summarizeNearbyStation(point, stationItems) {
     distanceKm: roundNumber(nearest.distanceKm, 1),
     observedAt: nearest.item.observedAt,
     station: {
-      name: nearest.item.station && nearest.item.station.name ? nearest.item.station.name : "Estacao INMET",
+      name: nearest.item.station && nearest.item.station.name ? nearest.item.station.name : "Estação INMET",
       traditionalId: nearest.item.station && nearest.item.station.traditionalId ? nearest.item.station.traditionalId : null
     },
     metrics: {
@@ -444,7 +444,7 @@ function buildHighlights(context) {
       label: "Vencendo em 6h",
       value: String(context.analysis.riskWindow.expiringWithin6Hours),
       tone: context.analysis.riskWindow.expiringWithin6Hours > 0 ? context.highestSeverity.key : "ama",
-      detail: context.analysis.riskWindow.upcomingWithin6Hours + " alerta(s) com inicio nas proximas 6 horas."
+      detail: context.analysis.riskWindow.upcomingWithin6Hours + " alerta(s) com início nas próximas 6 horas."
     },
     {
       id: "state-hotspot",
@@ -453,7 +453,7 @@ function buildHighlights(context) {
       tone: topState ? topState.highestSeverityKey : "ama",
       detail: topState
         ? topState.alertCount + " alerta(s) e " + topState.eventDiversity + " tipo(s) de evento."
-        : "Sem concentracao territorial acima do restante do painel."
+        : "Sem concentração territorial acima do restante do painel."
     },
     {
       id: "event-cluster",
@@ -473,7 +473,7 @@ function buildHighlights(context) {
       tone: "warm",
       detail: context.hottestStation
         ? context.hottestStation.label + " · " + context.hottestStation.station.name
-        : "Sem leitura util nas estacoes amostradas."
+        : "Sem leitura útil nas estações amostradas."
     },
     {
       id: "wettest-station",
@@ -510,7 +510,7 @@ function summarizeStationExtreme(item, metricKey) {
     label: item.label,
     region: item.region,
     observedAt: item.observedAt,
-    stationName: item.station && item.station.name ? item.station.name : "Estacao INMET",
+    stationName: item.station && item.station.name ? item.station.name : "Estação INMET",
     distanceKm: item.distanceKm,
     metricKey,
     metric: normalizeMetric(item.metrics[metricKey])

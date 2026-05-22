@@ -28,8 +28,8 @@ async function getClimateNews(options = {}) {
       label: "Portal INMET",
       status: portalItems.length ? "ok" : "empty",
       detail: portalItems.length
-        ? portalItems.length + " noticia(s) extraida(s) do portal oficial."
-        : "Portal acessivel, mas sem noticias identificadas."
+        ? portalItems.length + " notícia(s) extraída(s) do portal oficial."
+        : "Portal acessível, mas sem notícias identificadas."
     });
   } catch (error) {
     sources.push({
@@ -51,7 +51,7 @@ async function getClimateNews(options = {}) {
           status: rssItems.length ? "ok" : "empty",
           detail: rssItems.length
             ? rssItems.length + " item(ns) via RSS."
-            : "RSS acessivel, mas sem itens."
+            : "RSS acessível, mas sem itens."
         });
       } catch (error) {
         sources.push({
@@ -67,7 +67,7 @@ async function getClimateNews(options = {}) {
       id: "rss-fallback",
       label: "RSS de fallback",
       status: "skipped",
-      detail: "Dispensado porque o portal oficial ja devolveu noticias suficientes."
+      detail: "Dispensado porque o portal oficial já devolveu notícias suficientes."
     });
   }
 
@@ -98,7 +98,7 @@ async function fetchInmetPortalNews(limit) {
       url: href,
       source: "Portal INMET",
       publishedAt: null,
-      summary: "Noticia capturada do portal oficial do INMET."
+      summary: "Notícia capturada do portal oficial do INMET."
     });
   }
 
@@ -137,7 +137,7 @@ async function fetchText(url, acceptHeader) {
     });
 
     if (!response.ok) {
-      throw new Error("Fonte indisponivel: " + response.status + " em " + url);
+      throw new Error("Fonte indisponível: " + response.status + " em " + url);
     }
 
     return response.text();

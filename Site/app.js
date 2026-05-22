@@ -222,7 +222,7 @@ async function loadReport() {
   }
 
   state.loading = true;
-  setStatus("loading", "Consultando base de dados", "Buscando o ultimo relatorio publicado.");
+  setStatus("loading", "Consultando base de dados", "Buscando o último relatório publicado.");
 
   try {
     const report = await fetchLatestReport();
@@ -236,7 +236,7 @@ async function loadReport() {
     renderReport();
     setStatus(
       "ready",
-      "Relatorio carregado",
+      "Relatório carregado",
       "Utilizando o pacote salvo em " + formatDateTime(report.generatedAt) + "."
     );
   } catch (error) {
@@ -315,7 +315,7 @@ function renderReport() {
 
 function renderHighlights(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.highlightsGrid.innerHTML = "<div class=\"empty-state\">Nenhum destaque calculado no relatorio atual.</div>";
+    elements.highlightsGrid.innerHTML = "<div class=\"empty-state\">Nenhum destaque calculado no relatório atual.</div>";
     return;
   }
 
@@ -330,7 +330,7 @@ function renderHighlights(items) {
 
 function renderSources(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.sourcesGrid.innerHTML = "<div class=\"empty-state\">Sem status de fontes neste relatorio.</div>";
+    elements.sourcesGrid.innerHTML = "<div class=\"empty-state\">Sem status de fontes neste relatório.</div>";
     return;
   }
 
@@ -339,14 +339,14 @@ function renderSources(items) {
       "<span class=\"source-pill " + escapeHtml(item.status || "empty") + "\">" + escapeHtml(labelForStatus(item.status)) + "</span>" +
       "<strong class=\"metric-value\" style=\"font-size:1.15rem;margin-top:14px\">" + escapeHtml(item.label || "Fonte") + "</strong>" +
       "<p class=\"source-detail\">" + escapeHtml(item.detail || "") + "</p>" +
-      "<p class=\"source-meta\">" + escapeHtml(item.updatedAt ? formatDateTime(item.updatedAt) : "Sem horario informado") + "</p>" +
+      "<p class=\"source-meta\">" + escapeHtml(item.updatedAt ? formatDateTime(item.updatedAt) : "Sem horário informado") + "</p>" +
     "</article>"
   )).join("");
 }
 
 function renderAlerts(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.alertList.innerHTML = "<div class=\"empty-state\">Nao ha alertas no relatorio salvo.</div>";
+    elements.alertList.innerHTML = "<div class=\"empty-state\">Não há alertas no relatório salvo.</div>";
     return;
   }
 
@@ -363,7 +363,7 @@ function renderAlerts(items) {
       "</div>" +
       "<p class=\"alert-meta\">" +
         "<span>" + escapeHtml(formatDateTime(alert.onset)) + "</span>" +
-        "<span>ate " + escapeHtml(formatDateTime(alert.expires)) + "</span>" +
+        "<span>até " + escapeHtml(formatDateTime(alert.expires)) + "</span>" +
       "</p>" +
     "</button>"
   )).join("");
@@ -371,21 +371,21 @@ function renderAlerts(items) {
 
 function renderStations(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.stationsGrid.innerHTML = "<div class=\"empty-state\">Sem leituras de estacao neste ciclo.</div>";
+    elements.stationsGrid.innerHTML = "<div class=\"empty-state\">Sem leituras de estação neste ciclo.</div>";
     return;
   }
 
   elements.stationsGrid.innerHTML = items.map((item) => (
     "<article class=\"station-card\">" +
       "<h3>" + escapeHtml(item.label) + "</h3>" +
-      "<p class=\"station-meta\">" + escapeHtml(item.region) + " · " + escapeHtml(item.station && item.station.name ? item.station.name : "Estacao INMET") + "</p>" +
+      "<p class=\"station-meta\">" + escapeHtml(item.region) + " · " + escapeHtml(item.station && item.station.name ? item.station.name : "Estação INMET") + "</p>" +
       "<div class=\"station-stack\">" +
         stationRow("Temperatura", formatMetric(item.metrics && item.metrics.airTemperature)) +
         stationRow("Umidade", formatMetric(item.metrics && item.metrics.relativeHumidity)) +
         stationRow("Chuva 1h", formatMetric(item.metrics && item.metrics.precipitationLastHour)) +
         stationRow("Vento", formatMetric(item.metrics && item.metrics.windSpeed)) +
         stationRow(
-          "Distancia",
+          "Distância",
           item.distanceKm !== undefined && item.distanceKm !== null ? formatNumber(item.distanceKm) + " km" : "n/d"
         ) +
       "</div>" +
@@ -396,7 +396,7 @@ function renderStations(items) {
 
 function renderNews(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.newsList.innerHTML = "<div class=\"empty-state\">Nenhuma noticia agregada no ciclo atual.</div>";
+    elements.newsList.innerHTML = "<div class=\"empty-state\">Nenhuma notícia agregada no ciclo atual.</div>";
     return;
   }
 
@@ -405,7 +405,7 @@ function renderNews(items) {
 
     return (
     "<a class=\"news-card\" href=\"" + escapeHtml(safeUrl || "#") + "\" target=\"_blank\" rel=\"noopener noreferrer\" referrerpolicy=\"no-referrer\">" +
-      "<h3 class=\"news-title\">" + escapeHtml(item.title || "Sem titulo") + "</h3>" +
+      "<h3 class=\"news-title\">" + escapeHtml(item.title || "Sem título") + "</h3>" +
       "<p class=\"news-summary\">" + escapeHtml(item.summary || "Sem resumo adicional.") + "</p>" +
       "<p class=\"news-meta\">" + escapeHtml(item.source || "Fonte") + " · " + escapeHtml(formatDateTime(item.publishedAt)) + "</p>" +
     "</a>"
@@ -443,21 +443,21 @@ function renderSelectedAlert() {
       "<span class=\"detail-badge ama\">" + escapeHtml(phaseLabel(alert.phase)) + "</span>" +
     "</div>" +
     "<h3 class=\"detail-title\">" + escapeHtml(alert.headline || "Alerta") + "</h3>" +
-    "<p class=\"detail-copy\">" + escapeHtml(alert.description || "Sem descricao adicional.") + "</p>" +
+    "<p class=\"detail-copy\">" + escapeHtml(alert.description || "Sem descrição adicional.") + "</p>" +
     "<ul class=\"detail-list\">" +
       detailLine("Evento", alert.event || "n/d") +
       detailLine("Estados", formatStates(alert.area && alert.area.states)) +
       detailLine("Cobertura", formatAlertCoverage(alert)) +
-      detailLine("Municipios", municipalities || "Sem amostra") +
+      detailLine("Municípios", municipalities || "Sem amostra") +
       detailLine("Janela", formatAlertTiming(alert.timing, alert.phase)) +
-      detailLine("Urgencia CAP", formatOperationalValue(alert.urgency)) +
+      detailLine("Urgência CAP", formatOperationalValue(alert.urgency)) +
       detailLine("Certeza", formatOperationalValue(alert.certainty)) +
-      (nearbyStation ? detailLine("Estacao proxima", nearbyStation) : "") +
-      (nearbyStationMetrics ? detailLine("Leitura proxima", nearbyStationMetrics) : "") +
+      (nearbyStation ? detailLine("Estação próxima", nearbyStation) : "") +
+      (nearbyStationMetrics ? detailLine("Leitura próxima", nearbyStationMetrics) : "") +
       detailLinkLine("Link oficial", safeUrl) +
     "</ul>" +
     (alert.instruction
-      ? "<p class=\"detail-note\"><strong>Orientacao:</strong> " + escapeHtml(alert.instruction) + "</p>"
+      ? "<p class=\"detail-note\"><strong>Orientação:</strong> " + escapeHtml(alert.instruction) + "</p>"
       : "");
 }
 
@@ -662,10 +662,10 @@ function renderError(error) {
   elements.alertCount.textContent = "0 item(ns)";
   elements.highlightsGrid.innerHTML = "<div class=\"empty-state\">" + escapeHtml(buildErrorMessage(error)) + "</div>";
   elements.sourcesGrid.innerHTML = "<div class=\"empty-state\">Configure `SITE_SUPABASE_URL` e `SITE_SUPABASE_ANON_KEY` para ativar o painel.</div>";
-  elements.alertList.innerHTML = "<div class=\"empty-state\">Nenhum alerta disponivel no momento.</div>";
-  elements.stationsGrid.innerHTML = "<div class=\"empty-state\">Sem leituras disponiveis.</div>";
-  elements.newsList.innerHTML = "<div class=\"empty-state\">Sem noticias disponiveis.</div>";
-  elements.alertDetail.innerHTML = "<p class=\"detail-empty\">O detalhe do alerta aparecera aqui quando o relatorio for carregado.</p>";
+  elements.alertList.innerHTML = "<div class=\"empty-state\">Nenhum alerta disponível no momento.</div>";
+  elements.stationsGrid.innerHTML = "<div class=\"empty-state\">Sem leituras disponíveis.</div>";
+  elements.newsList.innerHTML = "<div class=\"empty-state\">Sem notícias disponíveis.</div>";
+  elements.alertDetail.innerHTML = "<p class=\"detail-empty\">O detalhe do alerta aparecerá aqui quando o relatório for carregado.</p>";
   state.polygonLayer.clearLayers();
   state.markerLayer.clearLayers();
   state.stationLayer.clearLayers();
@@ -673,7 +673,7 @@ function renderError(error) {
     elements.mapInsightCard.innerHTML = "<p class=\"map-overlay-copy\">Sem leitura operacional para exibir no mapa.</p>";
   }
   if (elements.mapLegend) {
-    elements.mapLegend.innerHTML = "<p class=\"map-overlay-copy\">A legenda volta a aparecer quando houver relatorio salvo.</p>";
+    elements.mapLegend.innerHTML = "<p class=\"map-overlay-copy\">A legenda volta a aparecer quando houver relatório salvo.</p>";
   }
   closeMapFlashCard();
 }
@@ -706,7 +706,7 @@ function detailLine(label, value) {
 
 function detailLinkLine(label, url) {
   if (!url) {
-    return detailLine(label, "Nao informado");
+    return detailLine(label, "Não informado");
   }
 
   return (
@@ -725,12 +725,12 @@ function buildMapMeta(report) {
   const expiringSoon = typeof insights.expiringSoon === "number" ? insights.expiringSoon : 0;
   const fragments = [
     alerts + " alerta(s)",
-    geometryAlerts + " poligono(s)",
-    stationMarkers + " estacao(oes) no mapa"
+    geometryAlerts + " polígono(s)",
+    stationMarkers + " estação(ões) no mapa"
   ];
 
   if (expiringSoon > 0) {
-    fragments.push(expiringSoon + " vencendo em ate 6h");
+    fragments.push(expiringSoon + " vencendo em até 6h");
   }
 
   return fragments.join(" · ") + ".";
@@ -749,20 +749,20 @@ function buildMapInsightCard(report) {
     "<strong class=\"map-overlay-title\">" + escapeHtml(String(insights.expiringSoon || 0)) + " alerta(s) vencem em 6h</strong>" +
     "<p class=\"map-overlay-copy\">" + escapeHtml(
       topState
-        ? "Hotspot atual: " + topState.state + " com " + topState.alertCount + " alerta(s) e severidade ate " + topState.highestSeverityLabel + "."
-        : "Sem hotspot territorial calculado para o relatorio atual."
+        ? "Hotspot atual: " + topState.state + " com " + topState.alertCount + " alerta(s) e severidade até " + topState.highestSeverityLabel + "."
+        : "Sem hotspot territorial calculado para o relatório atual."
     ) + "</p>" +
     "<div class=\"map-overlay-pills\">" +
       mapPill("Geometrias", insights.geometryAlerts) +
-      mapPill("Estacoes", insights.stationMarkers) +
+      mapPill("Estações", insights.stationMarkers) +
       mapPill("Iniciando em 6h", insights.startingSoon) +
     "</div>" +
     (largestArea
-      ? "<p class=\"map-overlay-copy\">Maior area nominal: " +
+      ? "<p class=\"map-overlay-copy\">Maior área nominal: " +
           escapeHtml(largestArea.headline || "Alerta") +
           " com " +
           escapeHtml(String(largestArea.municipalityCount || 0)) +
-          " municipio(s).</p>"
+          " município(s).</p>"
       : "")
   );
 }
@@ -778,7 +778,7 @@ function buildMapLegend(report) {
       legendRow("Perigo", "verm", severity.verm) +
       legendRow("Laranja", "lar", severity.lar) +
       legendRow("Amarelo", "ama", severity.ama) +
-      legendRow("Estacoes INMET", "station", insights.stationMarkers) +
+      legendRow("Estações INMET", "station", insights.stationMarkers) +
     "</div>" +
     (dominantEvent
       ? "<p class=\"map-overlay-copy\">Evento dominante: " +
@@ -816,16 +816,16 @@ function formatAlertCoverage(alert) {
   const municipalityCount = Number(alert.area.municipalityCount) || 0;
   const stateCount = Number(alert.area.stateCount) || (Array.isArray(alert.area.states) ? alert.area.states.length : 0);
 
-  return municipalityCount + " municipio(s) em " + stateCount + " UF(s)";
+  return municipalityCount + " município(s) em " + stateCount + " UF(s)";
 }
 
 function formatAlertTiming(timing, phase) {
   if (!timing) {
-    return "Janela sem horario calculado";
+    return "Janela sem horário calculado";
   }
 
   if (phase === "upcoming" && typeof timing.startsInMinutes === "number" && timing.startsInMinutes > 0) {
-    return "Comeca em " + formatMinutesFromNow(timing.startsInMinutes);
+    return "Começa em " + formatMinutesFromNow(timing.startsInMinutes);
   }
 
   if (typeof timing.expiresInMinutes === "number" && timing.expiresInMinutes > 0) {
@@ -833,10 +833,10 @@ function formatAlertTiming(timing, phase) {
   }
 
   if (typeof timing.expiresInMinutes === "number" && timing.expiresInMinutes <= 0) {
-    return "Janela ja encerrada";
+    return "Janela já encerrada";
   }
 
-  return "Janela sem horario calculado";
+  return "Janela sem horário calculado";
 }
 
 function formatMinutesFromNow(minutes) {
@@ -916,7 +916,7 @@ function stationLatLng(item) {
 }
 
 function buildStationTooltip(item) {
-  const label = item && item.label ? item.label : "Estacao";
+  const label = item && item.label ? item.label : "Estação";
   const temp = item && item.metrics && item.metrics.airTemperature ? formatMetric(item.metrics.airTemperature) : "n/d";
   return escapeHtml(label + " · " + temp);
 }
@@ -925,11 +925,11 @@ function buildStationPopup(item) {
   return (
     "<article class=\"map-station-card\">" +
       "<div class=\"map-flash-card-head\">" +
-        "<span class=\"detail-badge ama\">Estacao</span>" +
+        "<span class=\"detail-badge ama\">Estação</span>" +
         "<span class=\"detail-badge ama\">" + escapeHtml(item.region || "INMET") + "</span>" +
       "</div>" +
-      "<h4 class=\"map-station-title\">" + escapeHtml(item.label || "Estacao") + "</h4>" +
-      "<p class=\"map-station-copy\">" + escapeHtml(item.station && item.station.name ? item.station.name : "Estacao INMET") + "</p>" +
+      "<h4 class=\"map-station-title\">" + escapeHtml(item.label || "Estação") + "</h4>" +
+      "<p class=\"map-station-copy\">" + escapeHtml(item.station && item.station.name ? item.station.name : "Estação INMET") + "</p>" +
       "<div class=\"map-station-grid\">" +
         stationMetricCell("Temperatura", formatMetric(item.metrics && item.metrics.airTemperature)) +
         stationMetricCell("Umidade", formatMetric(item.metrics && item.metrics.relativeHumidity)) +
@@ -1013,7 +1013,7 @@ function phaseLabel(phase) {
 }
 
 function levelLabel(level) {
-  return LEVEL_META[level] ? LEVEL_META[level].label : "Sem nivel";
+  return LEVEL_META[level] ? LEVEL_META[level].label : "Sem nível";
 }
 
 function levelColor(level) {
@@ -1059,7 +1059,7 @@ function openMapFlashCard(alert, latlng) {
         "<p class=\"map-flash-card-copy\">" + escapeHtml(alert.event || "Evento") + " · " + escapeHtml(states) + "</p>" +
         "<p class=\"map-flash-card-copy\">" + escapeHtml(formatAlertCoverage(alert)) + " · " + escapeHtml(formatAlertTiming(alert.timing, alert.phase)) + "</p>" +
         (nearbyStation
-          ? "<p class=\"map-flash-card-copy\">Estacao proxima: " + escapeHtml(nearbyStation) + "</p>"
+          ? "<p class=\"map-flash-card-copy\">Estação próxima: " + escapeHtml(nearbyStation) + "</p>"
           : "") +
         (nearbyStationMetrics
           ? "<p class=\"map-flash-card-copy\">" + escapeHtml(nearbyStationMetrics) + "</p>"
@@ -1116,14 +1116,14 @@ function labelForStatus(status) {
 
 function buildErrorMessage(error) {
   if (error && error.code === "CONFIG_MISSING") {
-    return "Faltam as credenciais publicas da Supabase no build do Site.";
+    return "Faltam as credenciais públicas da Supabase no build do Site.";
   }
 
   if (error && error.code === "REPORT_NOT_FOUND") {
-    return "A tabela existe, mas ainda nao ha relatorio salvo para a chave configurada.";
+    return "A tabela existe, mas ainda não há relatório salvo para a chave configurada.";
   }
 
-  return "Nao foi possivel carregar o relatorio atual da Supabase.";
+  return "Não foi possível carregar o relatório atual da Supabase.";
 }
 
 function safeExternalUrl(value) {

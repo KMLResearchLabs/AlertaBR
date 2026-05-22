@@ -6,7 +6,7 @@
 <title>AlertaBR</title>
 <meta
   name="description"
-  content="Painel climatico conectado a relatorios consolidados no algoritmo com mapa, estacoes e noticias."
+  content="Painel climático conectado a relatórios consolidados pelo algoritmo com mapa, estações e notícias."
 >
 <link rel="shortcut icon" href="../images/favicon.ico" />
 <link
@@ -50,7 +50,7 @@
 
   <nav class="site-menu-nav" aria-label="Navegação principal">
     <button class="site-menu-link is-active" type="button" data-view-target="home">Home</button>
-    <button class="site-menu-link" type="button" data-view-target="about">Sobre nos</button>
+    <button class="site-menu-link" type="button" data-view-target="about">Sobre nós</button>
   </nav>
 </aside>
 
@@ -59,8 +59,8 @@
     <section class="app-view is-active" id="view-home" data-view="home">
       <section class="panel panel-reportbar">
         <div class="reportbar-block">
-          <p class="section-tag">Relatorio</p>
-          <p class="reportbar-stamp" id="generated-at">Sem relatorio carregado.</p>
+          <p class="section-tag">Relatório</p>
+          <p class="reportbar-stamp" id="generated-at">Sem relatório carregado.</p>
         </div>
 
         <div class="reportbar-block reportbar-status">
@@ -84,7 +84,7 @@
           <div class="panel-head">
             <div>
               <p class="section-label">Resumo</p>
-              <h2>Relatorio atual</h2>
+              <h2>Relatório atual</h2>
             </div>
             <p class="panel-meta">Indicadores principais</p>
           </div>
@@ -106,7 +106,7 @@
               <span class="metric-detail">Baseado no INMET</span>
             </article>
             <article class="metric-card">
-              <span class="metric-label">Estacoes amostradas</span>
+              <span class="metric-label">Estações amostradas</span>
               <strong class="metric-value" id="metric-stations">-</strong>
               <span class="metric-detail">Leituras regionais</span>
             </article>
@@ -119,14 +119,15 @@
               <div class="panel-head panel-head-map">
                 <div>
                   <p class="section-label">Mapa central</p>
-                  <h2>Areas renderizadas</h2>
+                  <h2>Áreas renderizadas</h2>
                 </div>
                 <p class="panel-meta" id="map-meta">Sem geometrias carregadas.</p>
               </div>
 
               <div class="map-box">
                 <div class="map-frame" aria-hidden="true"></div>
-                <div id="map" aria-label="Mapa dos alertas climaticos"></div>
+                <div id="map" aria-label="Mapa dos alertas climáticos"></div>
+                <aside class="map-overlay-card map-insight-card" id="map-insight-card" aria-live="polite"></aside>
                 <aside class="map-overlay-card map-legend-card" id="map-legend" aria-live="polite"></aside>
               </div>
             </section>
@@ -137,7 +138,7 @@
                   <p class="section-label">Alerta selecionado</p>
                   <h2>Detalhe operacional</h2>
                 </div>
-                <p class="panel-meta">Contexto, municipios e validade</p>
+                <p class="panel-meta">Contexto, municípios e validade</p>
               </div>
 
               <aside class="detail-card" id="alert-detail">
@@ -164,8 +165,8 @@
           <section class="panel panel-stations">
             <div class="panel-head">
               <div>
-                <p class="section-label">Estacoes</p>
-                <h2>Amostra climatica</h2>
+                <p class="section-label">Estações</p>
+                <h2>Amostra climática</h2>
               </div>
             </div>
             <div class="stations-grid" id="stations-grid"></div>
@@ -174,7 +175,7 @@
           <section class="panel panel-news">
             <div class="panel-head">
               <div>
-                <p class="section-label">Noticias</p>
+                <p class="section-label">Notícias</p>
                 <h2>Feed relacionado</h2>
               </div>
             </div>
@@ -187,7 +188,7 @@
             <div class="panel-head">
               <div>
                 <p class="section-label">Fontes</p>
-                <h2>Saude da coleta</h2>
+                <h2>Saúde da coleta</h2>
               </div>
             </div>
             <div class="sources-grid" id="sources-grid"></div>
@@ -197,7 +198,7 @@
             <div class="panel-head">
               <div>
                 <p class="section-label">Destaques</p>
-                <h2>Pontos de atencao</h2>
+                <h2>Pontos de atenção</h2>
               </div>
             </div>
             <div class="highlights-grid" id="highlights-grid"></div>
@@ -211,25 +212,25 @@
         <div class="panel-head">
           <div>
             <p class="section-label">Institucional</p>
-            <h2>Sobre nos</h2>
+            <h2>Sobre nós</h2>
           </div>
           <p class="panel-meta">Quem somos e o que é o projeto AlertaBR</p>
         </div>
 
         <div class="about-layout">
           <article class="about-card">
-            <h3>Pagina em preparação</h3>
+            <h3>Página em preparação</h3>
             <p>
-              Esta area foi criada para receber os detalhes institucionais do AlertaBR. Quando voce
-              passar o conteudo, eu encaixo aqui sem mexer na navegacao principal.
+              Esta área foi criada para receber os detalhes institucionais do AlertaBR. Quando você
+              passar o conteúdo, eu encaixo aqui sem mexer na navegação principal.
             </p>
           </article>
 
           <article class="about-card">
             <h3>O que entra aqui depois</h3>
             <p>
-              Historico do projeto, metodologia de consolidacao, fontes de dados e qualquer outra
-              explicacao que precise ficar acessivel fora do painel operacional.
+              Histórico do projeto, metodologia de consolidação, fontes de dados e qualquer outra
+              explicação que precise ficar acessível fora do painel operacional.
             </p>
           </article>
         </div>
@@ -244,7 +245,7 @@
                 <span class="supporter-logo"><img src="./images/Supabase.png" alt="Supabase"></span>
                 <span class="supporter-logo"><img src="./images/Github.png" alt="GitHub"></span>
                 <span class="supporter-logo"><img src="./images/KMLCapital.png" alt="KML Capital"></span>
-                <span class="supporter-logo"><img src="./images/A%C3%A7%C3%B5esPro.png" alt="Acoes Pro"></span>
+                <span class="supporter-logo"><img src="./images/A%C3%A7%C3%B5esPro.png" alt="Ações Pro"></span>
                 <span class="supporter-logo"><img src="./images/KMLResearchLabs.png" alt="KML Research Labs"></span>
                 <span class="supporter-logo"><img src="./images/EmausDesign.png" alt="Emaus Design"></span>
                 <span class="supporter-logo"><img src="./images/Obsidian.png" alt="Obsidian"></span>
