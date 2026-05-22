@@ -730,12 +730,6 @@ body::before {
   backdrop-filter: blur(6px);
 }
 
-.map-insight-card {
-  top: 18px;
-  left: 18px;
-  max-width: min(340px, calc(100% - 36px));
-}
-
 .map-legend-card {
   right: 18px;
   bottom: 18px;
