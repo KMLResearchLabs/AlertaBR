@@ -79,19 +79,32 @@ body::before {
 
 .site-banner-inner {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
   min-height: 56px;
 }
 
 .site-banner-title {
   margin: 0;
+  grid-column: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   color: #ffffff;
   text-align: center;
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1;
   letter-spacing: -0.06em;
+}
+
+.site-banner-mark {
+  display: block;
+  width: clamp(56px, 3.8vw, 66px);
+  height: clamp(56px, 3.8vw, 66px);
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .menu-button,
@@ -105,9 +118,8 @@ body::before {
 }
 
 .menu-button {
-  position: absolute;
-  top: 50%;
-  right: 0;
+  grid-column: 3;
+  justify-self: end;
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
@@ -117,7 +129,6 @@ body::before {
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.34);
   background: transparent;
-  transform: translateY(-50%);
 }
 
 .menu-button:hover,
@@ -936,6 +947,15 @@ body::before {
 
   .site-banner-inner {
     min-height: 48px;
+  }
+
+  .site-banner-title {
+    gap: 6px;
+  }
+
+  .site-banner-mark {
+    width: 42px;
+    height: 42px;
   }
 
   .menu-button {
