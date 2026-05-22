@@ -25,6 +25,7 @@ const state = {
   map: null,
   polygonLayer: null,
   markerLayer: null,
+  stationLayer: null,
   loading: false,
   mapFlashCard: null,
   currentView: "home",
@@ -44,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function cacheElements() {
   elements.siteTitle = document.getElementById("site-title");
+  elements.siteTitleText = document.getElementById("site-title-text");
   elements.menuButton = document.getElementById("menu-button");
   elements.menuBackdrop = document.getElementById("menu-backdrop");
   elements.siteMenu = document.getElementById("site-menu");
@@ -67,6 +69,8 @@ function cacheElements() {
   elements.alertList = document.getElementById("alert-list");
   elements.stationsGrid = document.getElementById("stations-grid");
   elements.newsList = document.getElementById("news-list");
+  elements.mapInsightCard = document.getElementById("map-insight-card");
+  elements.mapLegend = document.getElementById("map-legend");
 }
 
 function bindEvents() {
@@ -209,6 +213,7 @@ function initMap() {
 
   state.polygonLayer = L.layerGroup().addTo(state.map);
   state.markerLayer = L.layerGroup().addTo(state.map);
+  state.stationLayer = L.layerGroup().addTo(state.map);
 }
 
 async function loadReport() {
@@ -285,7 +290,9 @@ async function fetchLatestReport() {
 function renderReport() {
   const report = state.report;
 
-  if (elements.siteTitle) {
+  if (elements.siteTitleText) {
+    elements.siteTitleText.textContent = "AlertaBR";
+  } else if (elements.siteTitle) {
     elements.siteTitle.textContent = "AlertaBR";
   }
   elements.generatedAt.textContent = "Gerado em " + formatDateTime(report.generatedAt);
@@ -293,7 +300,7 @@ function renderReport() {
   elements.summaryStates.textContent = safeValue(report.summary && report.summary.statesAffected);
   elements.summarySeverity.textContent = safeValue(report.summary && report.summary.highestSeverity);
   elements.summaryStations.textContent = safeValue(report.summary && report.summary.stationsSampled);
-  elements.mapMeta.textContent = (Array.isArray(report.alerts) ? report.alerts.length : 0) + " area(s) renderizadas.";
+  elements.mapMeta.textContent = buildMapMeta(report);
   elements.alertCount.textContent = (Array.isArray(report.alerts) ? report.alerts.length : 0) + " item(ns)";
 
   renderHighlights(report.highlights);
@@ -301,6 +308,7 @@ function renderReport() {
   renderAlerts(report.alerts);
   renderStations(report.sampleStations);
   renderNews(report.news);
+  renderMapOverlays(report);
   renderSelectedAlert();
   renderMap();
 }
@@ -405,6 +413,16 @@ function renderNews(items) {
   }).filter(Boolean).join("");
 }
 
+function renderMapOverlays(report) {
+  if (elements.mapInsightCard) {
+    elements.mapInsightCard.innerHTML = buildMapInsightCard(report);
+  }
+
+  if (elements.mapLegend) {
+    elements.mapLegend.innerHTML = buildMapLegend(report);
+  }
+}
+
 function renderSelectedAlert() {
   const alert = getSelectedAlert();
   if (!alert) {
@@ -416,6 +434,8 @@ function renderSelectedAlert() {
     ? alert.area.municipalitiesPreview.slice(0, 8).map((item) => item.name + " - " + item.state).join(", ")
     : "";
   const safeUrl = safeExternalUrl(alert.webUrl);
+  const nearbyStation = formatNearbyStation(alert.nearbyStation);
+  const nearbyStationMetrics = formatNearbyStationMetrics(alert.nearbyStation);
 
   elements.alertDetail.innerHTML =
     "<div class=\"detail-badge-row\">" +
@@ -427,18 +447,28 @@ function renderSelectedAlert() {
     "<ul class=\"detail-list\">" +
       detailLine("Evento", alert.event || "n/d") +
       detailLine("Estados", formatStates(alert.area && alert.area.states)) +
+      detailLine("Cobertura", formatAlertCoverage(alert)) +
       detailLine("Municipios", municipalities || "Sem amostra") +
-      detailLine("Validade", formatDateTime(alert.onset) + " ate " + formatDateTime(alert.expires)) +
+      detailLine("Janela", formatAlertTiming(alert.timing, alert.phase)) +
+      detailLine("Urgencia CAP", formatOperationalValue(alert.urgency)) +
+      detailLine("Certeza", formatOperationalValue(alert.certainty)) +
+      (nearbyStation ? detailLine("Estacao proxima", nearbyStation) : "") +
+      (nearbyStationMetrics ? detailLine("Leitura proxima", nearbyStationMetrics) : "") +
       detailLinkLine("Link oficial", safeUrl) +
-    "</ul>";
+    "</ul>" +
+    (alert.instruction
+      ? "<p class=\"detail-note\"><strong>Orientacao:</strong> " + escapeHtml(alert.instruction) + "</p>"
+      : "");
 }
 
 function renderMap() {
   state.polygonLayer.clearLayers();
   state.markerLayer.clearLayers();
+  state.stationLayer.clearLayers();
 
   const alerts = Array.isArray(state.report && state.report.alerts) ? state.report.alerts : [];
-  const bounds = [];
+  const alertBounds = [];
+  const stationBounds = [];
 
   alerts.forEach((alert) => {
     const mapTone = levelMapTone(alert.level);
@@ -454,6 +484,12 @@ function renderMap() {
         }
       });
 
+      polygon.bindTooltip(buildAlertTooltip(alert), {
+        sticky: true,
+        direction: "top",
+        opacity: 0.94,
+        className: "map-inline-tooltip"
+      });
       polygon.on("click", (event) => {
         selectAlert(alert.id, false, {
           source: "map",
@@ -464,7 +500,7 @@ function renderMap() {
       polygon.addTo(state.polygonLayer);
 
       if (polygon.getBounds && polygon.getBounds().isValid()) {
-        bounds.push(polygon.getBounds());
+        alertBounds.push(polygon.getBounds());
       }
     }
 
@@ -477,6 +513,11 @@ function renderMap() {
         fillOpacity: 1
       });
 
+      marker.bindTooltip(buildAlertTooltip(alert), {
+        direction: "top",
+        opacity: 0.94,
+        className: "map-inline-tooltip"
+      });
       marker.on("click", (event) => {
         selectAlert(alert.id, false, {
           source: "map",
@@ -488,15 +529,51 @@ function renderMap() {
     }
   });
 
-  if (bounds.length) {
-    const aggregate = bounds[0];
-    for (let index = 1; index < bounds.length; index += 1) {
-      aggregate.extend(bounds[index]);
+  const stations = Array.isArray(state.report && state.report.sampleStations) ? state.report.sampleStations : [];
+  stations.forEach((item) => {
+    const position = stationLatLng(item);
+    if (!position) {
+      return;
+    }
+
+    const marker = L.circleMarker(position, {
+      radius: 6.5,
+      color: "#ffffff",
+      weight: 2,
+      fillColor: "#1f4e79",
+      fillOpacity: 0.96
+    });
+
+    marker.bindTooltip(buildStationTooltip(item), {
+      direction: "top",
+      opacity: 0.94,
+      className: "map-inline-tooltip"
+    });
+    marker.bindPopup(buildStationPopup(item), {
+      className: "map-station-popup",
+      maxWidth: 320
+    });
+    marker.addTo(state.stationLayer);
+    stationBounds.push(L.latLng(position[0], position[1]));
+  });
+
+  if (alertBounds.length) {
+    const aggregate = alertBounds[0];
+    for (let index = 1; index < alertBounds.length; index += 1) {
+      aggregate.extend(alertBounds[index]);
     }
 
     state.map.fitBounds(aggregate, {
       padding: [24, 24],
       maxZoom: 6
+    });
+    return;
+  }
+
+  if (stationBounds.length) {
+    state.map.fitBounds(L.latLngBounds(stationBounds), {
+      padding: [28, 28],
+      maxZoom: 5
     });
     return;
   }
@@ -591,6 +668,13 @@ function renderError(error) {
   elements.alertDetail.innerHTML = "<p class=\"detail-empty\">O detalhe do alerta aparecera aqui quando o relatorio for carregado.</p>";
   state.polygonLayer.clearLayers();
   state.markerLayer.clearLayers();
+  state.stationLayer.clearLayers();
+  if (elements.mapInsightCard) {
+    elements.mapInsightCard.innerHTML = "<p class=\"map-overlay-copy\">Sem leitura operacional para exibir no mapa.</p>";
+  }
+  if (elements.mapLegend) {
+    elements.mapLegend.innerHTML = "<p class=\"map-overlay-copy\">A legenda volta a aparecer quando houver relatorio salvo.</p>";
+  }
   closeMapFlashCard();
 }
 
@@ -630,6 +714,239 @@ function detailLinkLine(label, url) {
     "<a class=\"detail-link\" href=\"" + escapeHtml(url) + "\" target=\"_blank\" rel=\"noopener noreferrer\" referrerpolicy=\"no-referrer\">" +
     "Abrir aviso oficial" +
     "</a></li>"
+  );
+}
+
+function buildMapMeta(report) {
+  const alerts = Array.isArray(report && report.alerts) ? report.alerts.length : 0;
+  const insights = report && report.mapInsights ? report.mapInsights : {};
+  const geometryAlerts = typeof insights.geometryAlerts === "number" ? insights.geometryAlerts : alerts;
+  const stationMarkers = typeof insights.stationMarkers === "number" ? insights.stationMarkers : 0;
+  const expiringSoon = typeof insights.expiringSoon === "number" ? insights.expiringSoon : 0;
+  const fragments = [
+    alerts + " alerta(s)",
+    geometryAlerts + " poligono(s)",
+    stationMarkers + " estacao(oes) no mapa"
+  ];
+
+  if (expiringSoon > 0) {
+    fragments.push(expiringSoon + " vencendo em ate 6h");
+  }
+
+  return fragments.join(" · ") + ".";
+}
+
+function buildMapInsightCard(report) {
+  const insights = report && report.mapInsights ? report.mapInsights : {};
+  const analysis = report && report.analysis ? report.analysis : {};
+  const topState = insights.topState;
+  const largestArea = analysis.coverage && analysis.coverage.largestAreaAlert
+    ? analysis.coverage.largestAreaAlert
+    : null;
+
+  return (
+    "<p class=\"map-overlay-kicker\">Leitura operacional</p>" +
+    "<strong class=\"map-overlay-title\">" + escapeHtml(String(insights.expiringSoon || 0)) + " alerta(s) vencem em 6h</strong>" +
+    "<p class=\"map-overlay-copy\">" + escapeHtml(
+      topState
+        ? "Hotspot atual: " + topState.state + " com " + topState.alertCount + " alerta(s) e severidade ate " + topState.highestSeverityLabel + "."
+        : "Sem hotspot territorial calculado para o relatorio atual."
+    ) + "</p>" +
+    "<div class=\"map-overlay-pills\">" +
+      mapPill("Geometrias", insights.geometryAlerts) +
+      mapPill("Estacoes", insights.stationMarkers) +
+      mapPill("Iniciando em 6h", insights.startingSoon) +
+    "</div>" +
+    (largestArea
+      ? "<p class=\"map-overlay-copy\">Maior area nominal: " +
+          escapeHtml(largestArea.headline || "Alerta") +
+          " com " +
+          escapeHtml(String(largestArea.municipalityCount || 0)) +
+          " municipio(s).</p>"
+      : "")
+  );
+}
+
+function buildMapLegend(report) {
+  const severity = report && report.severityBreakdown ? report.severityBreakdown : {};
+  const insights = report && report.mapInsights ? report.mapInsights : {};
+  const dominantEvent = insights.dominantEvent;
+
+  return (
+    "<p class=\"map-legend-title\">Camadas do mapa</p>" +
+    "<div class=\"map-legend-list\">" +
+      legendRow("Perigo", "verm", severity.verm) +
+      legendRow("Laranja", "lar", severity.lar) +
+      legendRow("Amarelo", "ama", severity.ama) +
+      legendRow("Estacoes INMET", "station", insights.stationMarkers) +
+    "</div>" +
+    (dominantEvent
+      ? "<p class=\"map-overlay-copy\">Evento dominante: " +
+          escapeHtml(dominantEvent.event) +
+          " (" +
+          escapeHtml(String(dominantEvent.count)) +
+          ").</p>"
+      : "")
+  );
+}
+
+function mapPill(label, value) {
+  return (
+    "<span class=\"map-overlay-pill\">" +
+      "<strong>" + escapeHtml(String(value === undefined || value === null ? "-" : value)) + "</strong>" +
+      "<span>" + escapeHtml(label) + "</span>" +
+    "</span>"
+  );
+}
+
+function legendRow(label, tone, value) {
+  return (
+    "<div class=\"map-legend-row\">" +
+      "<span class=\"map-legend-label\"><span class=\"legend-swatch " + escapeHtml(tone) + "\"></span>" + escapeHtml(label) + "</span>" +
+      "<strong>" + escapeHtml(String(value === undefined || value === null ? "-" : value)) + "</strong>" +
+    "</div>"
+  );
+}
+
+function formatAlertCoverage(alert) {
+  if (!alert || !alert.area) {
+    return "n/d";
+  }
+
+  const municipalityCount = Number(alert.area.municipalityCount) || 0;
+  const stateCount = Number(alert.area.stateCount) || (Array.isArray(alert.area.states) ? alert.area.states.length : 0);
+
+  return municipalityCount + " municipio(s) em " + stateCount + " UF(s)";
+}
+
+function formatAlertTiming(timing, phase) {
+  if (!timing) {
+    return "Janela sem horario calculado";
+  }
+
+  if (phase === "upcoming" && typeof timing.startsInMinutes === "number" && timing.startsInMinutes > 0) {
+    return "Comeca em " + formatMinutesFromNow(timing.startsInMinutes);
+  }
+
+  if (typeof timing.expiresInMinutes === "number" && timing.expiresInMinutes > 0) {
+    return "Expira em " + formatMinutesFromNow(timing.expiresInMinutes);
+  }
+
+  if (typeof timing.expiresInMinutes === "number" && timing.expiresInMinutes <= 0) {
+    return "Janela ja encerrada";
+  }
+
+  return "Janela sem horario calculado";
+}
+
+function formatMinutesFromNow(minutes) {
+  if (minutes < 60) {
+    return minutes + " min";
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  if (!remainder) {
+    return hours + "h";
+  }
+
+  return hours + "h" + remainder;
+}
+
+function formatOperationalValue(value) {
+  if (!value) {
+    return "n/d";
+  }
+
+  return String(value)
+    .split(/[_-]/)
+    .filter(Boolean)
+    .map((token) => token.charAt(0).toUpperCase() + token.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function formatNearbyStation(nearbyStation) {
+  if (!nearbyStation) {
+    return "";
+  }
+
+  const parts = [
+    nearbyStation.label || "",
+    nearbyStation.station && nearbyStation.station.name ? nearbyStation.station.name : "",
+    nearbyStation.distanceKm !== undefined && nearbyStation.distanceKm !== null
+      ? formatNumber(nearbyStation.distanceKm) + " km"
+      : ""
+  ].filter(Boolean);
+
+  return parts.join(" · ");
+}
+
+function formatNearbyStationMetrics(nearbyStation) {
+  if (!nearbyStation || !nearbyStation.metrics) {
+    return "";
+  }
+
+  const metrics = [];
+  if (nearbyStation.metrics.airTemperature) {
+    metrics.push("Temp " + formatMetric(nearbyStation.metrics.airTemperature));
+  }
+  if (nearbyStation.metrics.relativeHumidity) {
+    metrics.push("Umid " + formatMetric(nearbyStation.metrics.relativeHumidity));
+  }
+  if (nearbyStation.metrics.precipitationLastHour) {
+    metrics.push("Chuva 1h " + formatMetric(nearbyStation.metrics.precipitationLastHour));
+  }
+  if (nearbyStation.metrics.windSpeed) {
+    metrics.push("Vento " + formatMetric(nearbyStation.metrics.windSpeed));
+  }
+
+  return metrics.join(" · ");
+}
+
+function buildAlertTooltip(alert) {
+  return escapeHtml((alert.headline || "Alerta") + " · " + levelLabel(alert.level));
+}
+
+function stationLatLng(item) {
+  if (!item || !item.station || !item.station.position) {
+    return null;
+  }
+
+  return [item.station.position.lat, item.station.position.lng];
+}
+
+function buildStationTooltip(item) {
+  const label = item && item.label ? item.label : "Estacao";
+  const temp = item && item.metrics && item.metrics.airTemperature ? formatMetric(item.metrics.airTemperature) : "n/d";
+  return escapeHtml(label + " · " + temp);
+}
+
+function buildStationPopup(item) {
+  return (
+    "<article class=\"map-station-card\">" +
+      "<div class=\"map-flash-card-head\">" +
+        "<span class=\"detail-badge ama\">Estacao</span>" +
+        "<span class=\"detail-badge ama\">" + escapeHtml(item.region || "INMET") + "</span>" +
+      "</div>" +
+      "<h4 class=\"map-station-title\">" + escapeHtml(item.label || "Estacao") + "</h4>" +
+      "<p class=\"map-station-copy\">" + escapeHtml(item.station && item.station.name ? item.station.name : "Estacao INMET") + "</p>" +
+      "<div class=\"map-station-grid\">" +
+        stationMetricCell("Temperatura", formatMetric(item.metrics && item.metrics.airTemperature)) +
+        stationMetricCell("Umidade", formatMetric(item.metrics && item.metrics.relativeHumidity)) +
+        stationMetricCell("Chuva 1h", formatMetric(item.metrics && item.metrics.precipitationLastHour)) +
+        stationMetricCell("Vento", formatMetric(item.metrics && item.metrics.windSpeed)) +
+      "</div>" +
+      "<p class=\"map-station-copy\">Observado em " + escapeHtml(formatDateTime(item.observedAt)) + "</p>" +
+    "</article>"
+  );
+}
+
+function stationMetricCell(label, value) {
+  return (
+    "<div class=\"map-station-metric\">" +
+      "<span>" + escapeHtml(label) + "</span>" +
+      "<strong>" + escapeHtml(value || "n/d") + "</strong>" +
+    "</div>"
   );
 }
 
@@ -720,10 +1037,9 @@ function openMapFlashCard(alert, latlng) {
   closeMapFlashCard();
 
   const safeUrl = safeExternalUrl(alert.webUrl);
-  const municipalities = alert.area && alert.area.municipalityCount
-    ? String(alert.area.municipalityCount) + " municipio(s)"
-    : "Cobertura sem contagem";
   const states = formatStates(alert.area && alert.area.states);
+  const nearbyStation = formatNearbyStation(alert.nearbyStation);
+  const nearbyStationMetrics = formatNearbyStationMetrics(alert.nearbyStation);
 
   state.mapFlashCard = L.popup({
     autoClose: true,
@@ -741,7 +1057,16 @@ function openMapFlashCard(alert, latlng) {
         "</div>" +
         "<h4 class=\"map-flash-card-title\">" + escapeHtml(alert.headline || "Alerta") + "</h4>" +
         "<p class=\"map-flash-card-copy\">" + escapeHtml(alert.event || "Evento") + " · " + escapeHtml(states) + "</p>" +
-        "<p class=\"map-flash-card-copy\">" + escapeHtml(municipalities) + " · " + escapeHtml(formatDateTime(alert.expires)) + "</p>" +
+        "<p class=\"map-flash-card-copy\">" + escapeHtml(formatAlertCoverage(alert)) + " · " + escapeHtml(formatAlertTiming(alert.timing, alert.phase)) + "</p>" +
+        (nearbyStation
+          ? "<p class=\"map-flash-card-copy\">Estacao proxima: " + escapeHtml(nearbyStation) + "</p>"
+          : "") +
+        (nearbyStationMetrics
+          ? "<p class=\"map-flash-card-copy\">" + escapeHtml(nearbyStationMetrics) + "</p>"
+          : "") +
+        (alert.instruction
+          ? "<p class=\"map-flash-card-copy\">" + escapeHtml(alert.instruction) + "</p>"
+          : "") +
         (safeUrl
           ? "<a class=\"map-flash-card-link\" href=\"" + escapeHtml(safeUrl) + "\" target=\"_blank\" rel=\"noopener noreferrer\" referrerpolicy=\"no-referrer\">Abrir aviso oficial</a>"
           : "") +
