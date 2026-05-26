@@ -929,7 +929,13 @@ async function getOrCreateNotificationRegistration() {
 
 function getCurrentBrowserPosition() {
   return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
+    navigator.geolocation.getCurrentPosition(resolve, (error) => {
+      const wrapped = new Error(error && error.message ? error.message : "Falha ao obter localização.");
+      wrapped.code = "GEOLOCATION_ERROR";
+      wrapped.geolocationCode = error && typeof error.code === "number" ? error.code : 0;
+      wrapped.name = error && error.name ? error.name : "GeolocationPositionError";
+      reject(wrapped);
+    }, {
       enableHighAccuracy: false,
       timeout: 15000,
       maximumAge: 300000
@@ -1009,6 +1015,13 @@ function readAlertIdFromUrl() {
 }
 
 function describeNotificationError(error) {
+  console.error("Detalhe da falha de notificação", {
+    name: error && error.name ? error.name : "",
+    code: error && error.code !== undefined ? error.code : "",
+    geolocationCode: error && error.geolocationCode !== undefined ? error.geolocationCode : "",
+    message: error && error.message ? error.message : ""
+  });
+
   if (error && error.code === "NOTIFICATION_DENIED") {
     return "A permissão de notificação foi negada. Reative nas configurações do navegador para continuar.";
   }
@@ -1025,16 +1038,24 @@ function describeNotificationError(error) {
     return "O backend recusou a inscrição anônima. Revise as funções serverless e as chaves do deploy.";
   }
 
-  if (error && error.code === 1) {
-    return "A localização foi bloqueada. Se o deploy saiu da pasta Site/, atualize o header Permissions-Policy e permita localização no navegador.";
+  if (error && error.code === "GEOLOCATION_ERROR" && error.geolocationCode === 1) {
+    return "A localização foi bloqueada pelo navegador ou pelo sistema operacional. Permita localização para este site e para o navegador.";
   }
 
-  if (error && error.code === 2) {
+  if (error && error.code === "GEOLOCATION_ERROR" && error.geolocationCode === 2) {
     return "O navegador não conseguiu obter sua localização agora. Tente novamente com GPS/rede ativos.";
   }
 
-  if (error && error.code === 3) {
+  if (error && error.code === "GEOLOCATION_ERROR" && error.geolocationCode === 3) {
     return "A consulta de localização expirou antes de responder. Tente novamente em uma conexão melhor.";
+  }
+
+  if (error && error.name === "NotAllowedError") {
+    return "O navegador bloqueou a assinatura push. Revise as permissões de notificações deste site.";
+  }
+
+  if (error && error.name === "InvalidStateError") {
+    return "O service worker ainda não está pronto para assinar push. Recarregue a página e tente novamente.";
   }
 
   return "Não foi possível concluir a assinatura anônima deste navegador.";
