@@ -21,7 +21,7 @@ Deploy seguro recomendado:
 1. Publicar apenas `Site/` na Vercel.
 2. Não publicar `Servidor/` como app público.
 3. Executar `Servidor/` apenas pelo GitHub Actions agendado.
-4. Manter `SUPABASE_SERVICE_ROLE_KEY` somente no GitHub Actions e no ambiente local privado.
+4. Manter `SUPABASE_SERVICE_ROLE_KEY` somente no GitHub Actions, nas funções serverless privadas da Vercel quando notificações estiverem ativadas, e no ambiente local privado.
 
 Essa separação reduz a superfície pública para:
 
@@ -92,6 +92,11 @@ Regra crítica:
 
 - nunca coloque `SUPABASE_SERVICE_ROLE_KEY` na Vercel
 
+Exceção controlada:
+
+- se o projeto ativar `api/notifications/subscribe.js` e `api/notifications/unsubscribe.js`, a Vercel precisará de `SUPABASE_SERVICE_ROLE_KEY` apenas para essas funções serverless, além de `VAPID_SUBJECT`, `VAPID_PUBLIC_KEY` e `VAPID_PRIVATE_KEY`
+- essa chave continua privada porque roda no ambiente servidor da Vercel; ela não vai para `config.js`, HTML ou bundle público
+
 ### 5. Fazer o deploy público
 
 No terminal:
@@ -125,7 +130,7 @@ Depois do deploy:
 ## O que não fazer
 
 - não publicar o `Servidor/` em um host público sem necessidade
-- não expor `SUPABASE_SERVICE_ROLE_KEY` em frontend, Vercel ou código cliente
+- não expor `SUPABASE_SERVICE_ROLE_KEY` no frontend, em `config.js`, HTML, JavaScript público ou qualquer outro artefato enviado ao navegador
 - não remover o filtro `is_public = true` do frontend
 - não mudar a policy da tabela para `using (true)`
 

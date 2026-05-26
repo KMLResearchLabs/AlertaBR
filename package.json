@@ -7,12 +7,14 @@
   "scripts": {
     "start": "node Servidor/src/server.js",
     "dev": "node --watch Servidor/src/server.js",
-    "start:api": "node API/src/server.js",
-    "dev:api": "node --watch API/src/server.js",
+    "start:api": "node test/API/src/server.js",
+    "dev:api": "node --watch test/API/src/server.js",
     "dev:site": "node Site/dev-server.js",
     "build:site": "node Site/build.js",
     "report:generate": "node Servidor/scripts/generate-report.js",
-    "check": "node --check shared/load-env.js && node --check Site/build.js && node --check Site/dev-server.js && node --check Site/app.js && node --check Servidor/src/server.js && node --check Servidor/src/config.js && node --check Servidor/src/report-builder.js && node --check Servidor/src/pipeline.js && node --check Servidor/src/supabase.js && node --check Servidor/src/providers/news.js && node --check Servidor/src/providers/inmet.js && node --check Servidor/scripts/generate-report.js && node --check API/src/config.js && node --check API/src/supabase.js && node --check API/src/server.js"
+    "notifications:send": "node Servidor/scripts/send-notifications.js",
+    "notifications:vapid": "node Servidor/scripts/generate-vapid-keys.js",
+    "check": "node --check shared/load-env.js && node --check shared/supabase-rest.js && node --check Site/build.js && node --check Site/dev-server.js && node --check Site/app.js && node --check Site/notification-worker.js && node --check Servidor/src/server.js && node --check Servidor/src/config.js && node --check Servidor/src/report-builder.js && node --check Servidor/src/pipeline.js && node --check Servidor/src/supabase.js && node --check Servidor/src/notification-store.js && node --check Servidor/src/notifications.js && node --check Servidor/src/lib/geo.js && node --check Servidor/src/providers/news.js && node --check Servidor/src/providers/inmet.js && node --check Servidor/scripts/generate-report.js && node --check Servidor/scripts/send-notifications.js && node --check Servidor/scripts/generate-vapid-keys.js && node --check api/_lib/http.js && node --check api/notifications/subscribe.js && node --check api/notifications/unsubscribe.js && node --check test/API/src/config.js && node --check test/API/src/supabase.js && node --check test/API/src/server.js"
   },
   "engines": {
     "node": ">=20"
@@ -22,6 +24,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "fast-xml-parser": "^5.8.0"
+    "fast-xml-parser": "^5.8.0",
+    "web-push": "^3.6.7"
   }
 }

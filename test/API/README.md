@@ -25,7 +25,7 @@ Todos os endpoints em `/v1/*` exigem API key.
 
 ## Supabase
 
-Rode o SQL de [`API/supabase/schema.sql`](/home/bykurebo/Repositório/AlertaBR/API/supabase/schema.sql) no SQL Editor da Supabase.
+Rode o SQL de [`test/API/supabase/schema.sql`](/home/bykurebo/Repositório/AlertaBR/test/API/supabase/schema.sql) no SQL Editor da Supabase.
 
 ## Variáveis de ambiente
 

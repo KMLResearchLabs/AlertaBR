@@ -15,6 +15,12 @@ const config = {
   supabaseUrl: (process.env.SUPABASE_URL || "").replace(/\/+$/, ""),
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+  vapidSubject: process.env.VAPID_SUBJECT || "",
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY || process.env.SITE_PUSH_PUBLIC_KEY || "",
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY || "",
+  siteBaseUrl: (process.env.SITE_BASE_URL || process.env.SITE_API_BASE_URL || "").replace(/\/+$/, ""),
+  notificationSubscriptionsTable: process.env.NOTIFICATION_SUBSCRIPTIONS_TABLE || "notification_subscriptions",
+  notificationDeliveriesTable: process.env.NOTIFICATION_DELIVERIES_TABLE || "notification_deliveries",
   alertLimit: clampInteger(process.env.INMET_ALERT_OUTPUT_LIMIT, 80, 1, 120),
   stationSamples: [
     { key: "belem", label: "Belem, PA", region: "Norte", lat: -1.4558, lng: -48.5039 },
@@ -44,6 +50,28 @@ function validateStorageConfig() {
   };
 }
 
+function validateNotificationConfig() {
+  const validation = validateStorageConfig();
+  const missing = [...validation.missing];
+
+  if (!config.vapidSubject) {
+    missing.push("VAPID_SUBJECT");
+  }
+
+  if (!config.vapidPublicKey) {
+    missing.push("VAPID_PUBLIC_KEY ou SITE_PUSH_PUBLIC_KEY");
+  }
+
+  if (!config.vapidPrivateKey) {
+    missing.push("VAPID_PRIVATE_KEY");
+  }
+
+  return {
+    ok: missing.length === 0,
+    missing
+  };
+}
+
 function clampInteger(value, fallback, min, max) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
@@ -55,5 +83,6 @@ function clampInteger(value, fallback, min, max) {
 
 module.exports = {
   config,
-  validateStorageConfig
+  validateStorageConfig,
+  validateNotificationConfig
 };

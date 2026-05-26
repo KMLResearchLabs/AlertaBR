@@ -424,6 +424,28 @@ body::before {
   color: var(--accent);
 }
 
+.secondary-button {
+  width: fit-content;
+  padding: 11px 18px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-alt);
+  color: var(--ink);
+  font-weight: 700;
+  transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
+}
+
+.secondary-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #ffffff;
+}
+
+.refresh-button:disabled,
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .status-line {
   display: grid;
   grid-template-columns: 18px 1fr;
@@ -500,6 +522,10 @@ body::before {
   margin-bottom: 18px;
 }
 
+.panel-head-compact {
+  margin-bottom: 14px;
+}
+
 .panel-head h2 {
   margin: 0;
   font-size: clamp(1.95rem, 2.3vw, 2.8rem);
@@ -517,6 +543,72 @@ body::before {
   color: var(--ink-soft);
   font-size: 13px;
   text-align: right;
+}
+
+.panel-notification-optin {
+  padding-bottom: 16px;
+}
+
+.notification-optin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr) auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.notification-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.notification-status-label {
+  font-size: 1.1rem;
+  letter-spacing: -0.03em;
+}
+
+.notification-status-label[data-tone="enabled"] {
+  color: var(--accent);
+}
+
+.notification-status-label[data-tone="error"] {
+  color: #9e1931;
+}
+
+.notification-status-label[data-tone="loading"] {
+  color: var(--accent-mid);
+}
+
+.notification-status-meta {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.notification-field {
+  display: grid;
+  gap: 8px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.notification-field select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-alt);
+  color: var(--ink);
+}
+
+.notification-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
 }
 
 .summary-grid,
@@ -1121,6 +1213,7 @@ body::before {
 
 @media (max-width: 1220px) {
   .panel-reportbar,
+  .notification-optin-grid,
   .workspace-grid,
   .support-grid,
   .insight-grid,
@@ -1137,6 +1230,10 @@ body::before {
     min-height: 0;
     overflow: visible;
     padding-right: 0;
+  }
+
+  .notification-actions {
+    justify-content: flex-start;
   }
 }
 

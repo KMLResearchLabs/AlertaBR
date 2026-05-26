@@ -110,6 +110,30 @@ function geometryCenter(geometry) {
   };
 }
 
+function pointInBbox(lng, lat, bbox) {
+  if (!Array.isArray(bbox) || bbox.length !== 4) {
+    return false;
+  }
+
+  return lng >= bbox[0] && lng <= bbox[2] && lat >= bbox[1] && lat <= bbox[3];
+}
+
+function pointInGeometry(geometry, lat, lng) {
+  if (!geometry) {
+    return false;
+  }
+
+  if (geometry.type === "Polygon") {
+    return pointInPolygonCoordinates(geometry.coordinates, lng, lat);
+  }
+
+  if (geometry.type === "MultiPolygon") {
+    return geometry.coordinates.some((polygon) => pointInPolygonCoordinates(polygon, lng, lat));
+  }
+
+  return false;
+}
+
 function flattenGeometry(geometry) {
   if (!geometry) {
     return [];
@@ -126,10 +150,83 @@ function flattenGeometry(geometry) {
   return [];
 }
 
+function pointInPolygonCoordinates(polygonCoordinates, lng, lat) {
+  const rings = Array.isArray(polygonCoordinates) ? polygonCoordinates : [];
+  const outerRing = rings[0];
+
+  if (!Array.isArray(outerRing) || !outerRing.length || !pointInRing(outerRing, lng, lat)) {
+    return false;
+  }
+
+  for (let index = 1; index < rings.length; index += 1) {
+    if (pointInRing(rings[index], lng, lat)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function pointInRing(ring, lng, lat) {
+  let inside = false;
+
+  for (let index = 0, previousIndex = ring.length - 1; index < ring.length; previousIndex = index, index += 1) {
+    const current = ring[index];
+    const previous = ring[previousIndex];
+
+    if (!Array.isArray(current) || !Array.isArray(previous)) {
+      continue;
+    }
+
+    const currentLng = Number(current[0]);
+    const currentLat = Number(current[1]);
+    const previousLng = Number(previous[0]);
+    const previousLat = Number(previous[1]);
+
+    if (!Number.isFinite(currentLng) || !Number.isFinite(currentLat) || !Number.isFinite(previousLng) || !Number.isFinite(previousLat)) {
+      continue;
+    }
+
+    if (pointOnSegment(lng, lat, previousLng, previousLat, currentLng, currentLat)) {
+      return true;
+    }
+
+    const intersects = ((currentLat > lat) !== (previousLat > lat)) &&
+      (lng < ((previousLng - currentLng) * (lat - currentLat)) / (previousLat - currentLat) + currentLng);
+
+    if (intersects) {
+      inside = !inside;
+    }
+  }
+
+  return inside;
+}
+
+function pointOnSegment(lng, lat, startLng, startLat, endLng, endLat) {
+  const cross = (lng - startLng) * (endLat - startLat) - (lat - startLat) * (endLng - startLng);
+  if (Math.abs(cross) > 1e-10) {
+    return false;
+  }
+
+  const squaredLength = (endLng - startLng) * (endLng - startLng) + (endLat - startLat) * (endLat - startLat);
+  if (squaredLength === 0) {
+    return Math.abs(lng - startLng) <= 1e-10 && Math.abs(lat - startLat) <= 1e-10;
+  }
+
+  const dot = (lng - startLng) * (endLng - startLng) + (lat - startLat) * (endLat - startLat);
+  if (dot < 0) {
+    return false;
+  }
+
+  return dot <= squaredLength;
+}
+
 module.exports = {
   distanceKm,
   geometryBbox,
   geometryCenter,
   geometryFromRings,
-  parseCapPolygon
+  parseCapPolygon,
+  pointInBbox,
+  pointInGeometry
 };

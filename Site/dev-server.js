@@ -45,7 +45,9 @@ function getRuntimeConfig() {
     siteName: process.env.SITE_API_NAME || "Happy Nation Climate Center",
     supabaseUrl: process.env.SITE_SUPABASE_URL || "",
     supabaseAnonKey: process.env.SITE_SUPABASE_ANON_KEY || "",
-    reportKey: process.env.SITE_REPORT_KEY || process.env.REPORT_KEY || "brazil-latest"
+    reportKey: process.env.SITE_REPORT_KEY || process.env.REPORT_KEY || "brazil-latest",
+    pushPublicKey: process.env.SITE_PUSH_PUBLIC_KEY || process.env.VAPID_PUBLIC_KEY || "",
+    apiBaseUrl: process.env.SITE_API_BASE_URL || ""
   };
 }
 

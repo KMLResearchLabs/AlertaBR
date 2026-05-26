@@ -19,6 +19,9 @@ const PHASE_LABELS = {
   cancelled: "Cancelado"
 };
 
+const DEFAULT_NOTIFICATION_LEVEL = "ama";
+const NOTIFICATION_DEVICE_KEY = "alertabr.device-id";
+
 const state = {
   report: null,
   selectedAlertId: null,
@@ -30,16 +33,22 @@ const state = {
   mapFlashCard: null,
   currentView: "home",
   menuOpen: false,
-  menuBackdropTimer: null
+  menuBackdropTimer: null,
+  notificationBusy: false,
+  notificationEnabled: false,
+  notificationRegistrationReady: false,
+  pendingAlertId: null
 };
 
 const elements = {};
 
 document.addEventListener("DOMContentLoaded", () => {
+  state.pendingAlertId = readAlertIdFromUrl();
   cacheElements();
   bindEvents();
   initMap();
   syncViewFromHash();
+  void initRegionalNotifications();
   loadReport();
 });
 
@@ -71,6 +80,11 @@ function cacheElements() {
   elements.newsList = document.getElementById("news-list");
   elements.mapInsightCard = document.getElementById("map-insight-card");
   elements.mapLegend = document.getElementById("map-legend");
+  elements.notificationStatusLabel = document.getElementById("notification-status-label");
+  elements.notificationStatusMeta = document.getElementById("notification-status-meta");
+  elements.notificationLevel = document.getElementById("notification-level");
+  elements.notificationEnableButton = document.getElementById("notification-enable-button");
+  elements.notificationDisableButton = document.getElementById("notification-disable-button");
 }
 
 function bindEvents() {
@@ -111,6 +125,18 @@ function bindEvents() {
   if (elements.refreshButton) {
     elements.refreshButton.addEventListener("click", () => {
       loadReport();
+    });
+  }
+
+  if (elements.notificationEnableButton) {
+    elements.notificationEnableButton.addEventListener("click", () => {
+      void handleEnableRegionalAlerts();
+    });
+  }
+
+  if (elements.notificationDisableButton) {
+    elements.notificationDisableButton.addEventListener("click", () => {
+      void handleDisableRegionalAlerts();
     });
   }
 
@@ -228,6 +254,11 @@ async function loadReport() {
     const report = await fetchLatestReport();
     state.report = report;
     state.selectedAlertId = keepValidSelection(report.alerts, state.selectedAlertId);
+
+    if (state.pendingAlertId && Array.isArray(report.alerts) && report.alerts.some((alert) => alert.id === state.pendingAlertId)) {
+      state.selectedAlertId = state.pendingAlertId;
+      state.pendingAlertId = null;
+    }
 
     if (!state.selectedAlertId && Array.isArray(report.alerts) && report.alerts.length) {
       state.selectedAlertId = report.alerts[0].id;
@@ -690,6 +721,315 @@ function setStatus(mode, label, meta) {
 
 function getRuntimeConfig() {
   return window.HAPPY_NATION_CONFIG || {};
+}
+
+async function initRegionalNotifications() {
+  syncNotificationLevel();
+
+  if (!elements.notificationStatusLabel || !elements.notificationStatusMeta) {
+    return;
+  }
+
+  if (!isRegionalNotificationSupported()) {
+    renderRegionalNotificationState("unsupported", "Indisponível", buildNotificationSupportMessage());
+    return;
+  }
+
+  try {
+    const registration = await getNotificationRegistration();
+    const subscription = registration ? await registration.pushManager.getSubscription() : null;
+    state.notificationRegistrationReady = Boolean(registration);
+    state.notificationEnabled = Boolean(subscription);
+
+    renderRegionalNotificationState(
+      state.notificationEnabled ? "enabled" : "idle",
+      state.notificationEnabled ? "Ativado neste navegador" : "Desativado",
+      state.notificationEnabled
+        ? "Os avisos seguem ativos para esta instalação do navegador."
+        : "Ative para receber avisos do INMET quando um alerta atingir sua localização atual."
+    );
+  } catch (error) {
+    console.error(error);
+    renderRegionalNotificationState("error", "Falha ao preparar", "Não foi possível inicializar as notificações deste navegador.");
+  }
+}
+
+async function handleEnableRegionalAlerts() {
+  if (state.notificationBusy) {
+    return;
+  }
+
+  state.notificationBusy = true;
+  renderRegionalNotificationState("loading", "Ativando", "Solicitando permissão de notificação e localização.");
+
+  try {
+    ensureNotificationConfig();
+
+    if (Notification.permission === "denied") {
+      const error = new Error("NOTIFICATION_DENIED");
+      error.code = "NOTIFICATION_DENIED";
+      throw error;
+    }
+
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      const error = new Error("NOTIFICATION_DENIED");
+      error.code = "NOTIFICATION_DENIED";
+      throw error;
+    }
+
+    const position = await getCurrentBrowserPosition();
+    const registration = await getOrCreateNotificationRegistration();
+    const existingSubscription = await registration.pushManager.getSubscription();
+    const subscription = existingSubscription || await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(getRuntimeConfig().pushPublicKey)
+    });
+
+    await postNotificationRequest("/api/notifications/subscribe", {
+      deviceId: getOrCreateAnonymousDeviceId(),
+      subscription: subscription.toJSON(),
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+      minLevel: getSelectedNotificationLevel()
+    });
+
+    state.notificationEnabled = true;
+    state.notificationRegistrationReady = true;
+    renderRegionalNotificationState("enabled", "Alertas ativos", "Seu navegador já está inscrito para avisos anônimos desta região.");
+  } catch (error) {
+    console.error(error);
+    renderRegionalNotificationState("error", "Não foi possível ativar", describeNotificationError(error));
+  } finally {
+    state.notificationBusy = false;
+    syncNotificationControls();
+  }
+}
+
+async function handleDisableRegionalAlerts() {
+  if (state.notificationBusy) {
+    return;
+  }
+
+  state.notificationBusy = true;
+  renderRegionalNotificationState("loading", "Desativando", "Removendo a assinatura deste navegador.");
+
+  try {
+    const registration = await getNotificationRegistration();
+    const subscription = registration ? await registration.pushManager.getSubscription() : null;
+
+    await postNotificationRequest("/api/notifications/unsubscribe", {
+      deviceId: getStoredAnonymousDeviceId(),
+      endpoint: subscription ? subscription.endpoint : ""
+    });
+
+    if (subscription) {
+      await subscription.unsubscribe();
+    }
+
+    state.notificationEnabled = false;
+    renderRegionalNotificationState("idle", "Desativado", "Os alertas foram removidos deste navegador.");
+  } catch (error) {
+    console.error(error);
+    renderRegionalNotificationState("error", "Falha ao desativar", "Não foi possível remover a assinatura deste navegador.");
+  } finally {
+    state.notificationBusy = false;
+    syncNotificationControls();
+  }
+}
+
+function syncNotificationLevel() {
+  if (!elements.notificationLevel) {
+    return;
+  }
+
+  elements.notificationLevel.value = getSelectedNotificationLevel();
+}
+
+function syncNotificationControls() {
+  if (!elements.notificationEnableButton || !elements.notificationDisableButton || !elements.notificationLevel) {
+    return;
+  }
+
+  const supported = isRegionalNotificationSupported();
+  const busy = state.notificationBusy;
+
+  elements.notificationEnableButton.disabled = !supported || busy;
+  elements.notificationDisableButton.disabled = !supported || busy || !state.notificationEnabled;
+  elements.notificationLevel.disabled = !supported || busy;
+  elements.notificationEnableButton.textContent = state.notificationEnabled ? "Atualizar alertas" : "Ativar alertas";
+}
+
+function renderRegionalNotificationState(mode, label, meta) {
+  if (!elements.notificationStatusLabel || !elements.notificationStatusMeta) {
+    return;
+  }
+
+  elements.notificationStatusLabel.textContent = label;
+  elements.notificationStatusLabel.setAttribute("data-tone", mode);
+  elements.notificationStatusMeta.textContent = meta;
+  syncNotificationControls();
+}
+
+function isRegionalNotificationSupported() {
+  return Boolean(
+    window.isSecureContext &&
+    "Notification" in window &&
+    "serviceWorker" in navigator &&
+    "PushManager" in window &&
+    "geolocation" in navigator
+  );
+}
+
+function ensureNotificationConfig() {
+  const runtimeConfig = getRuntimeConfig();
+
+  if (!isRegionalNotificationSupported()) {
+    const error = new Error("NOTIFICATION_UNSUPPORTED");
+    error.code = "NOTIFICATION_UNSUPPORTED";
+    throw error;
+  }
+
+  if (!runtimeConfig.pushPublicKey) {
+    const error = new Error("PUSH_CONFIG_MISSING");
+    error.code = "PUSH_CONFIG_MISSING";
+    throw error;
+  }
+}
+
+function buildNotificationSupportMessage() {
+  if (!window.isSecureContext) {
+    return "As notificações exigem HTTPS ou localhost para acessar service worker e localização.";
+  }
+
+  return "Este navegador não oferece suporte completo para push web com localização.";
+}
+
+function getSelectedNotificationLevel() {
+  const value = elements.notificationLevel ? elements.notificationLevel.value : DEFAULT_NOTIFICATION_LEVEL;
+  return value === "lar" || value === "verm" ? value : DEFAULT_NOTIFICATION_LEVEL;
+}
+
+async function getNotificationRegistration() {
+  if (!("serviceWorker" in navigator)) {
+    return null;
+  }
+
+  return navigator.serviceWorker.getRegistration();
+}
+
+async function getOrCreateNotificationRegistration() {
+  const existing = await getNotificationRegistration();
+  if (existing) {
+    return existing;
+  }
+
+  return navigator.serviceWorker.register("/notification-worker.js");
+}
+
+function getCurrentBrowserPosition() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: false,
+      timeout: 15000,
+      maximumAge: 300000
+    });
+  });
+}
+
+async function postNotificationRequest(pathname, payload) {
+  const runtimeConfig = getRuntimeConfig();
+  const baseUrl = runtimeConfig.apiBaseUrl ? runtimeConfig.apiBaseUrl.replace(/\/+$/, "") : "";
+  const response = await fetch(baseUrl + pathname, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    const error = new Error("NOTIFICATION_HTTP_" + response.status + ": " + detail);
+    error.code = "NOTIFICATION_HTTP";
+    throw error;
+  }
+
+  return response.json().catch(() => ({}));
+}
+
+function getStoredAnonymousDeviceId() {
+  try {
+    return window.localStorage.getItem(NOTIFICATION_DEVICE_KEY) || "";
+  } catch (_error) {
+    return "";
+  }
+}
+
+function getOrCreateAnonymousDeviceId() {
+  const current = getStoredAnonymousDeviceId();
+  if (current) {
+    return current;
+  }
+
+  const next = window.crypto && typeof window.crypto.randomUUID === "function"
+    ? window.crypto.randomUUID()
+    : "device-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+  try {
+    window.localStorage.setItem(NOTIFICATION_DEVICE_KEY, next);
+  } catch (_error) {
+    return next;
+  }
+
+  return next;
+}
+
+function urlBase64ToUint8Array(value) {
+  const padding = "=".repeat((4 - (value.length % 4)) % 4);
+  const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = window.atob(base64);
+  const output = new Uint8Array(raw.length);
+
+  for (let index = 0; index < raw.length; index += 1) {
+    output[index] = raw.charCodeAt(index);
+  }
+
+  return output;
+}
+
+function readAlertIdFromUrl() {
+  try {
+    const url = new URL(window.location.href);
+    return url.searchParams.get("alert") || "";
+  } catch (_error) {
+    return "";
+  }
+}
+
+function describeNotificationError(error) {
+  if (error && error.code === "NOTIFICATION_DENIED") {
+    return "A permissão de notificação foi negada. Reative nas configurações do navegador para continuar.";
+  }
+
+  if (error && error.code === "PUSH_CONFIG_MISSING") {
+    return "O deploy ainda não recebeu a chave pública de push.";
+  }
+
+  if (error && error.code === "NOTIFICATION_UNSUPPORTED") {
+    return buildNotificationSupportMessage();
+  }
+
+  if (error && error.code === "NOTIFICATION_HTTP") {
+    return "O backend recusou a inscrição anônima. Revise as funções serverless e as chaves do deploy.";
+  }
+
+  if (error && typeof error.code === "number") {
+    return "A localização foi recusada ou expirou antes da assinatura terminar.";
+  }
+
+  return "Não foi possível concluir a assinatura anônima deste navegador.";
 }
 
 function safeValue(value) {

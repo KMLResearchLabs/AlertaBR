@@ -79,6 +79,39 @@
         </div>
       </section>
 
+      <section class="panel panel-notification-optin">
+        <div class="panel-head panel-head-compact">
+          <div>
+            <p class="section-label">Notificações</p>
+            <h2>Alertas da sua região</h2>
+          </div>
+          <p class="panel-meta">Sem cadastro. Válido apenas neste navegador.</p>
+        </div>
+
+        <div class="notification-optin-grid">
+          <div class="notification-copy">
+            <strong class="notification-status-label" id="notification-status-label">Desativado</strong>
+            <p class="notification-status-meta" id="notification-status-meta">
+              Ative para receber avisos do INMET quando um alerta atingir sua localização atual.
+            </p>
+          </div>
+
+          <label class="notification-field" for="notification-level">
+            <span>Severidade mínima</span>
+            <select id="notification-level">
+              <option value="ama">Amarelo e acima</option>
+              <option value="lar">Laranja e vermelho</option>
+              <option value="verm">Somente vermelho</option>
+            </select>
+          </label>
+
+          <div class="notification-actions">
+            <button class="refresh-button" id="notification-enable-button" type="button">Ativar alertas</button>
+            <button class="secondary-button" id="notification-disable-button" type="button">Desativar</button>
+          </div>
+        </div>
+      </section>
+
       <div class="dashboard-shell">
         <section class="panel panel-summary">
           <div class="panel-head">

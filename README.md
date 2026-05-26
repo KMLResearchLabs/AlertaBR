@@ -4,14 +4,14 @@ Arquitetura separada em três áreas:
 
 - `Site/`: frontend estático que lê o último relatório salvo na Supabase e renderiza mapa, cards, alertas, estações e notícias.
 - `Servidor/`: backend agendado que coleta dados do INMET, relaciona notícias, monta o relatório e faz upsert na Supabase.
-- `API/`: API separada para deploy no Render, protegida por API keys validadas na Supabase.
+- `test/API/`: API separada para deploy no Render, protegida por API keys validadas na Supabase.
 
 ## Estrutura
 
 ```text
 Site/
 Servidor/
-API/
+test/API/
 shared/
 .github/workflows/refresh-report.yml
 ```
@@ -44,6 +44,9 @@ Variáveis principais:
 - `SITE_SUPABASE_ANON_KEY`
 - `SITE_REPORT_KEY`
 - `MANUAL_RUN_SECRET`
+- `VAPID_SUBJECT`
+- `VAPID_PUBLIC_KEY`
+- `VAPID_PRIVATE_KEY`
 
 ## Desenvolvimento local
 
@@ -77,6 +80,12 @@ Checagem sintática:
 npm run check
 ```
 
+Gerar um par de chaves VAPID para push web:
+
+```bash
+npm run notifications:vapid
+```
+
 ## Deploy do Site
 
 Deploy grátis recomendado: Vercel com projeto apontando para este repositório.
@@ -96,6 +105,11 @@ Importante:
 - não coloque `SUPABASE_SERVICE_ROLE_KEY` na Vercel
 - não coloque `SUPABASE_URL` ou `SUPABASE_ANON_KEY` genéricos esperando fallback; use explicitamente as variáveis `SITE_*`
 - o frontend público deve consumir apenas a linha `is_public = true`
+
+Exceção opcional:
+
+- se você ativar as notificações anônimas por região, a Vercel também precisará de `SUPABASE_SERVICE_ROLE_KEY`, `VAPID_SUBJECT`, `VAPID_PUBLIC_KEY` e `VAPID_PRIVATE_KEY` para executar apenas as funções serverless em `/api/notifications/*`
+- nesse caso, a `service role` continua restrita ao ambiente servidor da Vercel e nunca ao bundle do navegador
 
 ## Backend recorrente sem custo fixo
 
@@ -137,5 +151,31 @@ O roteiro exato de deploy seguro está em [`SECURITY.md`](SECURITY.md).
 
 ## API no Render
 
-A API protegida por API key fica em [`API/README.md`](API/README.md).
-Antes do deploy, rode também o SQL de [`API/supabase/schema.sql`](API/supabase/schema.sql) para criar a tabela `api_keys`.
+A API protegida por API key fica em [`test/API/README.md`](test/API/README.md).
+Antes do deploy, rode também o SQL de [`test/API/supabase/schema.sql`](test/API/supabase/schema.sql) para criar a tabela `api_keys`.
+
+## Notificações por região sem cadastro
+
+Fluxo implementado:
+
+- o usuário ativa as notificações no `Site/`
+- o navegador pede permissão de notificação e localização
+- a assinatura push é salva de forma anônima na Supabase via `api/notifications/subscribe.js`
+- o workflow [`/.github/workflows/send-region-notifications.yml`](.github/workflows/send-region-notifications.yml) roda a cada 5 minutos e envia push para assinaturas cuja posição caia dentro da geometria do alerta do INMET
+
+Recursos novos na Supabase:
+
+- `notification_subscriptions`
+- `notification_deliveries`
+
+Secrets adicionais para o workflow e para as funções serverless:
+
+- `VAPID_SUBJECT`
+- `VAPID_PUBLIC_KEY`
+- `VAPID_PRIVATE_KEY`
+
+Script manual de envio:
+
+```bash
+npm run notifications:send
+```
