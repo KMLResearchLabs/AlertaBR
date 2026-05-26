@@ -1025,8 +1025,16 @@ function describeNotificationError(error) {
     return "O backend recusou a inscrição anônima. Revise as funções serverless e as chaves do deploy.";
   }
 
-  if (error && typeof error.code === "number") {
-    return "A localização foi recusada ou expirou antes da assinatura terminar.";
+  if (error && error.code === 1) {
+    return "A localização foi bloqueada. Se o deploy saiu da pasta Site/, atualize o header Permissions-Policy e permita localização no navegador.";
+  }
+
+  if (error && error.code === 2) {
+    return "O navegador não conseguiu obter sua localização agora. Tente novamente com GPS/rede ativos.";
+  }
+
+  if (error && error.code === 3) {
+    return "A consulta de localização expirou antes de responder. Tente novamente em uma conexão melhor.";
   }
 
   return "Não foi possível concluir a assinatura anônima deste navegador.";
