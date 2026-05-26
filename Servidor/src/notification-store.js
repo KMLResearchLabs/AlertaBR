@@ -41,8 +41,8 @@ function createNotificationStore(options) {
       device_id: deviceId,
       endpoint,
       subscription,
-      lat,
-      lng,
+      lat: roundCoordinate(lat),
+      lng: roundCoordinate(lng),
       min_level: minLevel,
       user_agent: input && input.userAgent ? String(input.userAgent) : null,
       updated_at: now,
@@ -221,6 +221,10 @@ function normalizeLevel(value) {
 
 function buildDeliveryKey(deviceId, alertId, reason) {
   return [String(deviceId || ""), String(alertId || ""), String(reason || "")].join("::");
+}
+
+function roundCoordinate(value) {
+  return Math.round(Number(value) * 100) / 100;
 }
 
 function escapeFilterToken(value) {

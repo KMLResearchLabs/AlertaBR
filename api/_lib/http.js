@@ -1,19 +1,39 @@
-async function readJson(request) {
+const DEFAULT_JSON_LIMIT_BYTES = 32 * 1024;
+
+async function readJson(request, options = {}) {
+  const limitBytes = Number(options.limitBytes) || DEFAULT_JSON_LIMIT_BYTES;
+
   if (request.body && typeof request.body === "object") {
     return request.body;
   }
 
   const chunks = [];
+  let totalBytes = 0;
 
   for await (const chunk of request) {
-    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    totalBytes += buffer.length;
+
+    if (totalBytes > limitBytes) {
+      const error = new Error("JSON_BODY_TOO_LARGE");
+      error.statusCode = 413;
+      throw error;
+    }
+
+    chunks.push(buffer);
   }
 
   if (!chunks.length) {
     return {};
   }
 
-  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } catch (_error) {
+    const error = new Error("INVALID_JSON");
+    error.statusCode = 400;
+    throw error;
+  }
 }
 
 function sendJson(response, statusCode, payload) {

@@ -6,7 +6,7 @@
 <title>AlertaBR</title>
 <meta
   name="description"
-  content="Painel climático conectado a relatórios consolidados pelo algoritmo com mapa, estações e notícias."
+  content="Alertas climáticos do Brasil em um mapa simples, com avisos do INMET, estações e notícias."
 >
 <link rel="shortcut icon" href="../images/favicon.ico" />
 <link
@@ -59,8 +59,8 @@
     <section class="app-view is-active" id="view-home" data-view="home">
       <section class="panel panel-reportbar">
         <div class="reportbar-block">
-          <p class="section-tag">Relatório</p>
-          <p class="reportbar-stamp" id="generated-at">Sem relatório carregado.</p>
+          <p class="section-tag">Atualização</p>
+          <p class="reportbar-stamp" id="generated-at">Nenhum dado carregado.</p>
         </div>
 
         <div class="reportbar-block reportbar-status">
@@ -75,7 +75,7 @@
         </div>
 
         <div class="reportbar-actions">
-          <button class="refresh-button" id="refresh-button" type="button">Atualizar leitura</button>
+          <button class="refresh-button" id="refresh-button" type="button">Atualizar dados</button>
         </div>
       </section>
 
@@ -85,14 +85,14 @@
             <p class="section-label">Notificações</p>
             <h2>Alertas da sua região</h2>
           </div>
-          <p class="panel-meta">Sem cadastro. Válido apenas neste navegador.</p>
+          <p class="panel-meta">Sem cadastro. Você pode desativar quando quiser.</p>
         </div>
 
         <div class="notification-optin-grid">
           <div class="notification-copy">
             <strong class="notification-status-label" id="notification-status-label">Desativado</strong>
             <p class="notification-status-meta" id="notification-status-meta">
-              Ative para receber avisos do INMET quando um alerta atingir sua localização atual.
+              Ative para receber avisos quando houver alerta perto de você.
             </p>
           </div>
 
@@ -117,7 +117,7 @@
           <div class="panel-head">
             <div>
               <p class="section-label">Resumo</p>
-              <h2>Relatório atual</h2>
+              <h2>Situação atual</h2>
             </div>
             <p class="panel-meta">Indicadores principais</p>
           </div>
@@ -126,12 +126,12 @@
             <article class="metric-card">
               <span class="metric-label">Alertas ativos</span>
               <strong class="metric-value" id="metric-active-alerts">-</strong>
-              <span class="metric-detail">Aguardando leitura</span>
+              <span class="metric-detail">Aguardando dados</span>
             </article>
             <article class="metric-card">
               <span class="metric-label">Estados afetados</span>
               <strong class="metric-value" id="metric-states">-</strong>
-              <span class="metric-detail">Cobertura territorial</span>
+              <span class="metric-detail">Locais com avisos</span>
             </article>
             <article class="metric-card">
               <span class="metric-label">Maior severidade</span>
@@ -141,7 +141,7 @@
             <article class="metric-card">
               <span class="metric-label">Estações mostradas</span>
               <strong class="metric-value" id="metric-stations">-</strong>
-              <span class="metric-detail">Leituras regionais</span>
+              <span class="metric-detail">Dados próximos</span>
             </article>
           </div>
         </section>
@@ -151,8 +151,8 @@
             <section class="panel panel-map">
               <div class="panel-head panel-head-map">
                 <div>
-                  <p class="section-label">Mapa central</p>
-                  <h2>Mapa climático
+                  <p class="section-label">Mapa</p>
+                  <h2>Alertas no mapa</h2>
                 </div>
               </div>
 
@@ -168,9 +168,9 @@
               <div class="panel-head">
                 <div>
                   <p class="section-label">Alerta selecionado</p>
-                  <h2>Detalhe operacional</h2>
+                  <h2>Detalhes do alerta</h2>
                 </div>
-                <p class="panel-meta">Contexto, municípios e validade</p>
+                <p class="panel-meta">Resumo, locais afetados e validade</p>
               </div>
 
               <aside class="detail-card" id="alert-detail">
@@ -184,7 +184,7 @@
               <div class="panel-head">
                 <div>
                   <p class="section-label">Alertas</p>
-                  <h2>Fila operacional</h2>
+                  <h2>Alertas disponíveis</h2>
                 </div>
                 <p class="panel-meta" id="alert-count">0 item(ns)</p>
               </div>
@@ -198,7 +198,7 @@
             <div class="panel-head">
               <div>
                 <p class="section-label">Estações</p>
-                <h2>Amostra climática</h2>
+                <h2>Estações do tempo</h2>
               </div>
             </div>
             <div class="stations-grid" id="stations-grid"></div>
@@ -220,7 +220,7 @@
             <div class="panel-head">
               <div>
                 <p class="section-label">Fontes</p>
-                <h2>Saúde da coleta</h2>
+                <h2>Status das fontes</h2>
               </div>
             </div>
             <div class="sources-grid" id="sources-grid"></div>
@@ -252,16 +252,12 @@
         <div class="about-layout">
           <article class="about-card">
             <h3>Quem somos?</h3>
-            <p> <br>
-              O AlertaBR é um projeto voltado ao desenvolvimento de uma plataforma unificada de análises e monitoramento climático, criada com o propósito de tornar informações meteorológicas e alertas de risco mais acessíveis, claros e úteis para a população. A iniciativa busca centralizar dados climáticos de diferentes fontes em um único ambiente, permitindo que usuários acompanhem condições meteorológicas, previsões e possíveis eventos extremos de maneira simples, intuitiva e em tempo real. <br><br>
-
-O principal objetivo da plataforma é contribuir para a prevenção e redução de impactos causados por eventos climáticos adversos, fornecendo informações confiáveis que auxiliem na tomada de decisões tanto em atividades do cotidiano quanto em setores que dependem diretamente das condições do clima. Por meio de análises automatizadas, consolidação de dados e sistemas de alerta, o AlertaBR pretende ampliar o acesso à informação climática de qualidade, aproximando tecnologia e segurança da população. <br><br>
-
-Atualmente, a ferramenta atende diferentes públicos, incluindo cidadãos, agrônomos, produtores rurais, pesquisadores, profissionais da área ambiental e demais usuários que necessitam de informações meteorológicas atualizadas para planejamento e prevenção. No setor agrícola, por exemplo, a plataforma auxilia no acompanhamento de chuvas, temperaturas, riscos de tempestades e outras variáveis importantes para o manejo e produtividade das lavouras. Já para a população em geral, os alertas contribuem para aumentar a conscientização e preparação diante de situações de risco climático, como temporais, ondas de calor, ventos intensos e alagamentos.
-
-Além do monitoramento climático, o projeto também busca evoluir continuamente suas metodologias de consolidação de dados, integração de novas fontes meteorológicas e aprimoramento dos sistemas de análise, garantindo maior precisão, confiabilidade e abrangência das informações disponibilizadas. <br><br>
-              
-Dessa forma, o AlertaBR se consolida como uma iniciativa tecnológica voltada à democratização do acesso à informação climática e ao fortalecimento da prevenção de riscos ambientais no Brasil.
+            <p>
+              O AlertaBR reúne alertas climáticos, dados de estações e notícias em um só lugar para ajudar pessoas a acompanhar riscos do tempo no Brasil.
+              <br><br>
+              A ideia é simples: mostrar avisos importantes de forma clara, com mapa, nível de perigo, locais afetados e validade de cada alerta.
+              <br><br>
+              O projeto pode ser útil para moradores, produtores rurais, pesquisadores e qualquer pessoa que precise se preparar melhor para chuva forte, calor, vento, tempestades e outros eventos climáticos.
             </p>
           </article>
 

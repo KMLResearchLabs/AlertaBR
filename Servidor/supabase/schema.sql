@@ -45,6 +45,13 @@ create table if not exists public.notification_subscriptions (
   revoked_at timestamptz
 );
 
+update public.notification_subscriptions
+set
+  lat = round(lat::numeric, 2)::double precision,
+  lng = round(lng::numeric, 2)::double precision
+where lat <> round(lat::numeric, 2)::double precision
+   or lng <> round(lng::numeric, 2)::double precision;
+
 alter table public.notification_subscriptions enable row level security;
 
 drop policy if exists "service role can manage notification subscriptions" on public.notification_subscriptions;

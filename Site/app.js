@@ -248,7 +248,7 @@ async function loadReport() {
   }
 
   state.loading = true;
-  setStatus("loading", "Consultando base de dados", "Buscando o último relatório publicado.");
+  setStatus("loading", "Atualizando dados", "Buscando os avisos mais recentes.");
 
   try {
     const report = await fetchLatestReport();
@@ -267,8 +267,8 @@ async function loadReport() {
     renderReport();
     setStatus(
       "ready",
-      "Relatório carregado",
-      "Utilizando o pacote salvo em " + formatDateTime(report.generatedAt) + "."
+      "Dados atualizados",
+      "Última atualização em " + formatDateTime(report.generatedAt) + "."
     );
   } catch (error) {
     console.error(error);
@@ -348,7 +348,7 @@ function renderReport() {
 
 function renderHighlights(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.highlightsGrid.innerHTML = "<div class=\"empty-state\">Nenhum destaque calculado no relatório atual.</div>";
+    elements.highlightsGrid.innerHTML = "<div class=\"empty-state\">Nenhum destaque disponível agora.</div>";
     return;
   }
 
@@ -363,7 +363,7 @@ function renderHighlights(items) {
 
 function renderSources(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.sourcesGrid.innerHTML = "<div class=\"empty-state\">Sem status de fontes neste relatório.</div>";
+    elements.sourcesGrid.innerHTML = "<div class=\"empty-state\">Sem informações das fontes no momento.</div>";
     return;
   }
 
@@ -379,7 +379,7 @@ function renderSources(items) {
 
 function renderAlerts(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.alertList.innerHTML = "<div class=\"empty-state\">Não há alertas no relatório salvo.</div>";
+    elements.alertList.innerHTML = "<div class=\"empty-state\">Não há alertas no momento.</div>";
     return;
   }
 
@@ -404,7 +404,7 @@ function renderAlerts(items) {
 
 function renderStations(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.stationsGrid.innerHTML = "<div class=\"empty-state\">Sem leituras de estação neste ciclo.</div>";
+    elements.stationsGrid.innerHTML = "<div class=\"empty-state\">Sem dados das estações no momento.</div>";
     return;
   }
 
@@ -429,7 +429,7 @@ function renderStations(items) {
 
 function renderNews(items) {
   if (!Array.isArray(items) || !items.length) {
-    elements.newsList.innerHTML = "<div class=\"empty-state\">Nenhuma notícia agregada no ciclo atual.</div>";
+    elements.newsList.innerHTML = "<div class=\"empty-state\">Nenhuma notícia relacionada no momento.</div>";
     return;
   }
 
@@ -480,13 +480,13 @@ function renderSelectedAlert() {
     "<ul class=\"detail-list\">" +
       detailLine("Evento", alert.event || "n/d") +
       detailLine("Estados", formatStates(alert.area && alert.area.states)) +
-      detailLine("Cobertura", formatAlertCoverage(alert)) +
-      detailLine("Municípios", municipalities || "Sem amostra") +
-      detailLine("Janela", formatAlertTiming(alert.timing, alert.phase)) +
-      detailLine("Urgência CAP", formatOperationalValue(alert.urgency)) +
+      detailLine("Área afetada", formatAlertCoverage(alert)) +
+      detailLine("Municípios", municipalities || "Não informado") +
+      detailLine("Validade", formatAlertTiming(alert.timing, alert.phase)) +
+      detailLine("Urgência", formatOperationalValue(alert.urgency)) +
       detailLine("Certeza", formatOperationalValue(alert.certainty)) +
       (nearbyStation ? detailLine("Estação próxima", nearbyStation) : "") +
-      (nearbyStationMetrics ? detailLine("Leitura próxima", nearbyStationMetrics) : "") +
+      (nearbyStationMetrics ? detailLine("Dados próximos", nearbyStationMetrics) : "") +
       detailLinkLine("Link oficial", safeUrl) +
     "</ul>" +
     (alert.instruction
@@ -686,29 +686,29 @@ function keepValidSelection(alerts, selectedAlertId) {
 }
 
 function renderError(error) {
-  elements.generatedAt.textContent = "Sem dados carregados.";
+  elements.generatedAt.textContent = "Nenhum dado carregado.";
   elements.summaryActiveAlerts.textContent = "-";
   elements.summaryStates.textContent = "-";
   elements.summarySeverity.textContent = "-";
   elements.summaryStations.textContent = "-";
   if (elements.mapMeta) {
-    elements.mapMeta.textContent = "Sem geometrias carregadas.";
+    elements.mapMeta.textContent = "Sem áreas carregadas.";
   }
   elements.alertCount.textContent = "0 item(ns)";
   elements.highlightsGrid.innerHTML = "<div class=\"empty-state\">" + escapeHtml(buildErrorMessage(error)) + "</div>";
-  elements.sourcesGrid.innerHTML = "<div class=\"empty-state\">Configure `SITE_SUPABASE_URL` e `SITE_SUPABASE_ANON_KEY` para ativar o painel.</div>";
+  elements.sourcesGrid.innerHTML = "<div class=\"empty-state\">Não foi possível carregar os dados do site.</div>";
   elements.alertList.innerHTML = "<div class=\"empty-state\">Nenhum alerta disponível no momento.</div>";
-  elements.stationsGrid.innerHTML = "<div class=\"empty-state\">Sem leituras disponíveis.</div>";
+  elements.stationsGrid.innerHTML = "<div class=\"empty-state\">Sem dados das estações.</div>";
   elements.newsList.innerHTML = "<div class=\"empty-state\">Sem notícias disponíveis.</div>";
-  elements.alertDetail.innerHTML = "<p class=\"detail-empty\">O detalhe do alerta aparecerá aqui quando o relatório for carregado.</p>";
+  elements.alertDetail.innerHTML = "<p class=\"detail-empty\">Os detalhes aparecerão aqui quando os dados carregarem.</p>";
   state.polygonLayer.clearLayers();
   state.markerLayer.clearLayers();
   state.stationLayer.clearLayers();
   if (elements.mapInsightCard) {
-    elements.mapInsightCard.innerHTML = "<p class=\"map-overlay-copy\">Sem leitura operacional para exibir no mapa.</p>";
+    elements.mapInsightCard.innerHTML = "<p class=\"map-overlay-copy\">Sem resumo para mostrar no mapa.</p>";
   }
   if (elements.mapLegend) {
-    elements.mapLegend.innerHTML = "<p class=\"map-overlay-copy\">A legenda volta a aparecer quando houver relatório salvo.</p>";
+    elements.mapLegend.innerHTML = "<p class=\"map-overlay-copy\">A legenda aparecerá quando houver dados.</p>";
   }
   closeMapFlashCard();
 }
@@ -743,14 +743,14 @@ async function initRegionalNotifications() {
 
     renderRegionalNotificationState(
       state.notificationEnabled ? "enabled" : "idle",
-      state.notificationEnabled ? "Ativado neste navegador" : "Desativado",
+      state.notificationEnabled ? "Ativado" : "Desativado",
       state.notificationEnabled
-        ? "Os avisos seguem ativos para esta instalação do navegador."
-        : "Ative para receber avisos do INMET quando um alerta atingir sua localização atual."
+        ? "Você receberá avisos quando houver alertas perto de você."
+        : "Ative para receber avisos quando houver alertas perto da sua localização."
     );
   } catch (error) {
     console.error(error);
-    renderRegionalNotificationState("error", "Falha ao preparar", "Não foi possível inicializar as notificações deste navegador.");
+    renderRegionalNotificationState("error", "Não foi possível preparar", "Recarregue a página e tente novamente.");
   }
 }
 
@@ -760,25 +760,11 @@ async function handleEnableRegionalAlerts() {
   }
 
   state.notificationBusy = true;
-  renderRegionalNotificationState("loading", "Ativando", "Solicitando permissão de notificação e localização.");
+  renderRegionalNotificationState("loading", "Ativando", "Solicitando permissão de localização e notificação.");
 
   try {
     ensureNotificationConfig();
-
-    if (Notification.permission === "denied") {
-      const error = new Error("NOTIFICATION_DENIED");
-      error.code = "NOTIFICATION_DENIED";
-      throw error;
-    }
-
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      const error = new Error("NOTIFICATION_DENIED");
-      error.code = "NOTIFICATION_DENIED";
-      throw error;
-    }
-
-    const position = await getCurrentBrowserPosition();
+    const position = await requestNotificationAndLocationPermission();
     const registration = await getOrCreateNotificationRegistration();
     const existingSubscription = await registration.pushManager.getSubscription();
     const subscription = existingSubscription || await registration.pushManager.subscribe({
@@ -796,7 +782,7 @@ async function handleEnableRegionalAlerts() {
 
     state.notificationEnabled = true;
     state.notificationRegistrationReady = true;
-    renderRegionalNotificationState("enabled", "Alertas ativos", "Seu navegador já está inscrito para avisos anônimos desta região.");
+    renderRegionalNotificationState("enabled", "Alertas ativos", "Você receberá avisos quando houver alertas perto de você.");
   } catch (error) {
     console.error(error);
     renderRegionalNotificationState("error", "Não foi possível ativar", describeNotificationError(error));
@@ -812,7 +798,7 @@ async function handleDisableRegionalAlerts() {
   }
 
   state.notificationBusy = true;
-  renderRegionalNotificationState("loading", "Desativando", "Removendo a assinatura deste navegador.");
+  renderRegionalNotificationState("loading", "Desativando", "Removendo os avisos deste aparelho.");
 
   try {
     const registration = await getNotificationRegistration();
@@ -828,10 +814,10 @@ async function handleDisableRegionalAlerts() {
     }
 
     state.notificationEnabled = false;
-    renderRegionalNotificationState("idle", "Desativado", "Os alertas foram removidos deste navegador.");
+    renderRegionalNotificationState("idle", "Desativado", "Os avisos foram desativados neste aparelho.");
   } catch (error) {
     console.error(error);
-    renderRegionalNotificationState("error", "Falha ao desativar", "Não foi possível remover a assinatura deste navegador.");
+    renderRegionalNotificationState("error", "Falha ao desativar", "Não foi possível remover os avisos deste aparelho.");
   } finally {
     state.notificationBusy = false;
     syncNotificationControls();
@@ -899,10 +885,10 @@ function ensureNotificationConfig() {
 
 function buildNotificationSupportMessage() {
   if (!window.isSecureContext) {
-    return "As notificações exigem HTTPS ou localhost para acessar service worker e localização.";
+    return "As notificações só funcionam em site seguro.";
   }
 
-  return "Este navegador não oferece suporte completo para push web com localização.";
+  return "Este navegador não permite usar localização e notificações neste site.";
 }
 
 function getSelectedNotificationLevel() {
@@ -941,6 +927,28 @@ function getCurrentBrowserPosition() {
       maximumAge: 300000
     });
   });
+}
+
+async function requestNotificationAndLocationPermission() {
+  const position = await getCurrentBrowserPosition();
+
+  if (Notification.permission === "denied") {
+    const error = new Error("NOTIFICATION_DENIED");
+    error.code = "NOTIFICATION_DENIED";
+    throw error;
+  }
+
+  const permission = Notification.permission === "granted"
+    ? "granted"
+    : await Notification.requestPermission();
+
+  if (permission !== "granted") {
+    const error = new Error("NOTIFICATION_DENIED");
+    error.code = "NOTIFICATION_DENIED";
+    throw error;
+  }
+
+  return position;
 }
 
 async function postNotificationRequest(pathname, payload) {
@@ -1023,11 +1031,11 @@ function describeNotificationError(error) {
   });
 
   if (error && error.code === "NOTIFICATION_DENIED") {
-    return "A permissão de notificação foi negada. Reative nas configurações do navegador para continuar.";
+    return "A permissão de notificação foi negada. Permita notificações nas configurações do site.";
   }
 
   if (error && error.code === "PUSH_CONFIG_MISSING") {
-    return "O deploy ainda não recebeu a chave pública de push.";
+    return "As notificações ainda não foram configuradas neste site.";
   }
 
   if (error && error.code === "NOTIFICATION_UNSUPPORTED") {
@@ -1035,30 +1043,30 @@ function describeNotificationError(error) {
   }
 
   if (error && error.code === "NOTIFICATION_HTTP") {
-    return "O backend recusou a inscrição anônima. Revise as funções serverless e as chaves do deploy.";
+    return "Não foi possível salvar seus avisos. Tente novamente em alguns instantes.";
   }
 
   if (error && error.code === "GEOLOCATION_ERROR" && error.geolocationCode === 1) {
-    return "A localização foi bloqueada pelo navegador ou pelo sistema operacional. Permita localização para este site e para o navegador.";
+    return "A localização foi bloqueada. Permita localização para este site e tente de novo.";
   }
 
   if (error && error.code === "GEOLOCATION_ERROR" && error.geolocationCode === 2) {
-    return "O navegador não conseguiu obter sua localização agora. Tente novamente com GPS/rede ativos.";
+    return "Não conseguimos encontrar sua localização agora. Verifique GPS ou internet e tente de novo.";
   }
 
   if (error && error.code === "GEOLOCATION_ERROR" && error.geolocationCode === 3) {
-    return "A consulta de localização expirou antes de responder. Tente novamente em uma conexão melhor.";
+    return "A localização demorou para responder. Tente novamente.";
   }
 
   if (error && error.name === "NotAllowedError") {
-    return "O navegador bloqueou a assinatura push. Revise as permissões de notificações deste site.";
+    return "O navegador bloqueou as notificações. Permita notificações para este site.";
   }
 
   if (error && error.name === "InvalidStateError") {
-    return "O service worker ainda não está pronto para assinar push. Recarregue a página e tente novamente.";
+    return "As notificações ainda estão carregando. Recarregue a página e tente novamente.";
   }
 
-  return "Não foi possível concluir a assinatura anônima deste navegador.";
+  return "Não foi possível ativar as notificações neste aparelho.";
 }
 
 function safeValue(value) {
@@ -1118,20 +1126,20 @@ function buildMapInsightCard(report) {
     : null;
 
   return (
-    "<p class=\"map-overlay-kicker\">Leitura operacional</p>" +
+    "<p class=\"map-overlay-kicker\">Resumo do mapa</p>" +
     "<strong class=\"map-overlay-title\">" + escapeHtml(String(insights.expiringSoon || 0)) + " alerta(s) vencem em 6h</strong>" +
     "<p class=\"map-overlay-copy\">" + escapeHtml(
       topState
-        ? "Hotspot atual: " + topState.state + " com " + topState.alertCount + " alerta(s) e severidade até " + topState.highestSeverityLabel + "."
-        : "Sem hotspot territorial calculado para o relatório atual."
+        ? "Estado com mais alertas: " + topState.state + " com " + topState.alertCount + " alerta(s) e nível máximo " + topState.highestSeverityLabel + "."
+        : "Sem estado em destaque no momento."
     ) + "</p>" +
     "<div class=\"map-overlay-pills\">" +
-      mapPill("Geometrias", insights.geometryAlerts) +
+      mapPill("Áreas", insights.geometryAlerts) +
       mapPill("Estações", insights.stationMarkers) +
       mapPill("Iniciando em 6h", insights.startingSoon) +
     "</div>" +
     (largestArea
-      ? "<p class=\"map-overlay-copy\">Maior área nominal: " +
+      ? "<p class=\"map-overlay-copy\">Maior área afetada: " +
           escapeHtml(largestArea.headline || "Alerta") +
           " com " +
           escapeHtml(String(largestArea.municipalityCount || 0)) +
@@ -1478,10 +1486,10 @@ function labelForStatus(status) {
   const map = {
     ok: "OK",
     partial: "PARCIAL",
-    stale: "STALE",
-    empty: "VAZIO",
+    stale: "DESATUALIZADO",
+    empty: "SEM DADOS",
     error: "ERRO",
-    skipped: "PULADO"
+    skipped: "IGNORADO"
   };
 
   return map[status] || "INFO";
@@ -1489,14 +1497,14 @@ function labelForStatus(status) {
 
 function buildErrorMessage(error) {
   if (error && error.code === "CONFIG_MISSING") {
-    return "Faltam as credenciais públicas da Supabase no build do Site.";
+    return "O site ainda não foi configurado para carregar os dados.";
   }
 
   if (error && error.code === "REPORT_NOT_FOUND") {
-    return "A tabela existe, mas ainda não há relatório salvo para a chave configurada.";
+    return "Ainda não há dados publicados para mostrar.";
   }
 
-  return "Não foi possível carregar o relatório atual da Supabase.";
+  return "Não foi possível carregar os dados agora.";
 }
 
 function safeExternalUrl(value) {
