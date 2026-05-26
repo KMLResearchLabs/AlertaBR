@@ -1304,7 +1304,8 @@ body::before {
   }
 
   .map-overlay-card {
-    padding: 12px;
+    gap: 7px;
+    padding: 9px 10px;
     box-shadow: 6px 6px 0 rgba(127, 17, 22, 0.12);
   }
 
@@ -1316,11 +1317,34 @@ body::before {
   }
 
   .map-legend-card {
-    right: 12px;
-    left: 12px;
-    bottom: 12px;
+    right: 10px;
+    left: auto;
+    bottom: 10px;
     min-width: 0;
-    max-width: none;
+    width: min(190px, calc(100% - 20px));
+    max-width: 190px;
+  }
+
+  .map-legend-title {
+    font-size: 9px;
+  }
+
+  .map-legend-list {
+    gap: 5px;
+  }
+
+  .map-legend-row {
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .map-legend-label {
+    gap: 6px;
+  }
+
+  .legend-swatch {
+    width: 9px;
+    height: 9px;
   }
 
   .panel-head,
@@ -1355,6 +1379,22 @@ body::before {
 @media (max-width: 620px) {
   .map-box {
     height: 360px;
+  }
+
+  .map-legend-card {
+    width: min(160px, calc(100% - 16px));
+    max-width: 160px;
+    right: 8px;
+    bottom: 8px;
+    padding: 7px 8px;
+  }
+
+  .map-legend-list {
+    gap: 4px;
+  }
+
+  .map-legend-row {
+    font-size: 10px;
   }
 
   .detail-card {
