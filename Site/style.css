@@ -1310,10 +1310,7 @@ body::before {
   }
 
   .map-insight-card {
-    top: 12px;
-    left: 12px;
-    right: 12px;
-    max-width: none;
+    display: none;
   }
 
   .map-legend-card {

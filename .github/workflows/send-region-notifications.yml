@@ -2,8 +2,17 @@ name: send-region-notifications
 
 on:
   workflow_dispatch:
+    inputs:
+      force_resend:
+        description: "Reenviar mesmo se o alerta ja tiver sido registrado para o aparelho"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "3,18,33,48 * * * *"
 
 permissions:
   contents: read
@@ -35,5 +44,6 @@ jobs:
           VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
           VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          NOTIFICATION_FORCE_SEND: ${{ github.event.inputs.force_resend || 'false' }}
           INMET_ALERT_OUTPUT_LIMIT: 80
         run: node Servidor/scripts/send-notifications.js

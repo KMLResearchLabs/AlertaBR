@@ -13,6 +13,8 @@ async function sendRegionNotifications(options = {}) {
     throw new Error("Configura as notificações antes de enviar push: " + validation.missing.join(", "));
   }
 
+  const forceSend = options.forceSend === true || process.env.NOTIFICATION_FORCE_SEND === "true";
+
   const store = createNotificationStore({
     supabaseUrl: config.supabaseUrl,
     serviceRoleKey: config.supabaseServiceRoleKey,
@@ -73,7 +75,8 @@ async function sendRegionNotifications(options = {}) {
       }
 
       const deliveryKey = buildDeliveryKey(subscription.device_id, alert.id, DELIVERY_REASON);
-      if (existingDeliveries.has(deliveryKey)) {
+      const knownDelivery = existingDeliveries.has(deliveryKey);
+      if (knownDelivery && !forceSend) {
         summary.duplicates += 1;
         continue;
       }
@@ -98,7 +101,7 @@ async function sendRegionNotifications(options = {}) {
           payload
         });
 
-        if (inserted) {
+        if (inserted || forceSend) {
           existingDeliveries.add(deliveryKey);
           summary.sent += 1;
         } else {
